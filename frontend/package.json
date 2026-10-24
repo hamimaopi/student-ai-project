@@ -1,0 +1,9 @@
+{
+  "name": "student-ai-frontend",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {"dev": "vite --host 0.0.0.0", "build": "vite build", "preview": "vite preview"},
+  "dependencies": {"react": "^19.1.0", "react-dom": "^19.1.0"},
+  "devDependencies": {"@vitejs/plugin-react": "^4.7.0", "vite": "^6.3.0"}
+}

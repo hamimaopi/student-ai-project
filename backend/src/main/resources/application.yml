@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: student-ai-project
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/student_ai}
+    username: ${DB_USER:student_ai}
+    password: ${DB_PASSWORD:local_dev_password}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+  ai:
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      chat:
+        options:
+          model: ${OLLAMA_MODEL:llama3.1:8b}
+          temperature: 0.7
+      init:
+        pull-model-strategy: never
+server:
+  port: ${PORT:8080}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
