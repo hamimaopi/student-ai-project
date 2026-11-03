@@ -10,6 +10,8 @@ import com.studentai.project.message.dto.MessageResponse;
 import com.studentai.project.session.dto.CreateSessionRequest;
 import com.studentai.project.session.dto.SessionParticipantResponse;
 import com.studentai.project.session.dto.SessionResponse;
+import com.studentai.project.exception.ResourceNotFoundException;
+import com.studentai.project.exception.SessionStateConflictException;
 import com.studentai.project.statemachine.StudentState;
 import com.studentai.project.student.*;
 import com.studentai.project.teacher.Teacher;
@@ -56,10 +58,10 @@ public class SessionService {
                         .build()));
 
         Classroom classroom = classroomRepository.findById(request.getClassroomId())
-                .orElseThrow(() -> new IllegalArgumentException("Classroom not found: " + request.getClassroomId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found: " + request.getClassroomId()));
 
         Scenario scenario = scenarioRepository.findById(request.getScenarioId())
-                .orElseThrow(() -> new IllegalArgumentException("Scenario not found: " + request.getScenarioId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Scenario not found: " + request.getScenarioId()));
 
         Session session = Session.builder()
                 .teacher(teacher)
@@ -77,7 +79,7 @@ public class SessionService {
         }
 
         if (studentsToSeat.isEmpty()) {
-            throw new IllegalStateException("No students available to seat in classroom: " + classroom.getId());
+            throw new SessionStateConflictException("No students available to seat in classroom: " + classroom.getId());
         }
 
         for (Student student : studentsToSeat) {
@@ -104,7 +106,7 @@ public class SessionService {
     @Transactional(readOnly = true)
     public SessionResponse getSessionById(UUID id) {
         Session session = sessionRepository.findByIdWithDetails(id)
-                .orElseThrow(() -> new IllegalArgumentException("Session not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Session not found: " + id));
         return toSessionResponse(session);
     }
 
@@ -117,7 +119,7 @@ public class SessionService {
 
     public SessionResponse endSession(UUID id) {
         Session session = sessionRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Session not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Session not found: " + id));
 
         if (session.getEndedAt() == null) {
             session.setEndedAt(Instant.now());
@@ -154,7 +156,7 @@ public class SessionService {
     @Transactional(readOnly = true)
     public DebriefData getSessionDebrief(UUID sessionId) {
         Session session = sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new IllegalArgumentException("Session not found: " + sessionId));
+                .orElseThrow(() -> new ResourceNotFoundException("Session not found: " + sessionId));
         if (session.getDebrief() == null) {
             return null;
         }

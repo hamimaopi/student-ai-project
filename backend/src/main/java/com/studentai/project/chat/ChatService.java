@@ -6,6 +6,8 @@ import com.studentai.project.ai.TeacherMoveEvaluation;
 import com.studentai.project.ai.TransitionEvaluator;
 import com.studentai.project.chat.dto.ChatSendResponse;
 import com.studentai.project.classroom.Scenario;
+import com.studentai.project.exception.ResourceNotFoundException;
+import com.studentai.project.exception.SessionStateConflictException;
 import com.studentai.project.message.Message;
 import com.studentai.project.message.MessageRepository;
 import com.studentai.project.message.SenderType;
@@ -43,16 +45,16 @@ public class ChatService {
     public ChatSendResponse handleTeacherMessage(SendMessageRequest request) {
         // 1. Load Session
         Session session = sessionRepository.findById(request.getSessionId())
-                .orElseThrow(() -> new IllegalArgumentException("Session not found: " + request.getSessionId()));
+                .orElseThrow(() -> new ResourceNotFoundException("Session not found: " + request.getSessionId()));
 
         if (session.getEndedAt() != null) {
-            throw new IllegalStateException("Cannot send message to an ended session: " + session.getId());
+            throw new SessionStateConflictException("Cannot send message to an ended session: " + session.getId());
         }
 
         // 2. Identify Target Participant
         List<SessionParticipant> participants = participantRepository.findBySessionId(session.getId());
         if (participants.isEmpty()) {
-            throw new IllegalStateException("No participants found in session: " + session.getId());
+            throw new SessionStateConflictException("No participants found in session: " + session.getId());
         }
 
         SessionParticipant participant;
@@ -60,7 +62,7 @@ public class ChatService {
             participant = participants.stream()
                     .filter(p -> p.getStudent().getId().equals(request.getTargetStudentId()))
                     .findFirst()
-                    .orElseThrow(() -> new IllegalArgumentException("Student not in session: " + request.getTargetStudentId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Student not in session: " + request.getTargetStudentId()));
         } else {
             participant = participants.get(0);
         }

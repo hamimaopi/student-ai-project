@@ -6,6 +6,8 @@ import com.studentai.project.ai.TeacherMoveEvaluation;
 import com.studentai.project.ai.TransitionEvaluator;
 import com.studentai.project.chat.dto.ChatSendResponse;
 import com.studentai.project.classroom.Classroom;
+import com.studentai.project.exception.ResourceNotFoundException;
+import com.studentai.project.exception.SessionStateConflictException;
 import com.studentai.project.classroom.Scenario;
 import com.studentai.project.message.Message;
 import com.studentai.project.message.MessageRepository;
@@ -139,7 +141,7 @@ class ChatServiceTest {
                 .content("Hello")
                 .build();
 
-        assertThrows(IllegalArgumentException.class, () -> chatService.handleTeacherMessage(request));
+        assertThrows(ResourceNotFoundException.class, () -> chatService.handleTeacherMessage(request));
     }
 
     @Test
@@ -153,7 +155,7 @@ class ChatServiceTest {
                 .content("Hello")
                 .build();
 
-        assertThrows(IllegalStateException.class, () -> chatService.handleTeacherMessage(request));
+        assertThrows(SessionStateConflictException.class, () -> chatService.handleTeacherMessage(request));
     }
 
     @Test

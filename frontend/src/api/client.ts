@@ -7,20 +7,39 @@ import {
   ChatSendResponse
 } from '../types';
 
+export class ApiError extends Error {
+  status: number;
+  errorCode?: string;
+  details?: string[];
+
+  constructor(status: number, message: string, errorCode?: string, details?: string[]) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.errorCode = errorCode;
+    this.details = details;
+  }
+}
+
 const BASE_URL = '/api';
 
 async function handleResponse<T>(res: Response): Promise<T> {
   if (!res.ok) {
     const errorText = await res.text().catch(() => '');
     let errorMessage = `HTTP ${res.status}: ${res.statusText}`;
+    let errorCode: string | undefined;
+    let details: string[] | undefined;
+
     try {
       const parsed = JSON.parse(errorText);
       if (parsed.message) errorMessage = parsed.message;
       else if (parsed.error) errorMessage = parsed.error;
+      if (parsed.errorCode) errorCode = parsed.errorCode;
+      if (parsed.details) details = parsed.details;
     } catch {
       if (errorText) errorMessage = errorText;
     }
-    throw new Error(errorMessage);
+    throw new ApiError(res.status, errorMessage, errorCode, details);
   }
   return res.json() as Promise<T>;
 }

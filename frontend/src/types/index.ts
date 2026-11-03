@@ -109,3 +109,13 @@ export interface ChatSendResponse {
   reply: ChatMessage;
   participantState: SessionParticipant;
 }
+
+export interface ErrorResponse {
+  status: number;
+  errorCode: string;
+  message: string;
+  path?: string;
+  timestamp: string;
+  details?: string[];
+}
+

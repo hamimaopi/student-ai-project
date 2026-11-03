@@ -5,6 +5,7 @@ import com.studentai.project.classroom.dto.ScenarioResponse;
 import com.studentai.project.student.Student;
 import com.studentai.project.student.StudentRepository;
 import com.studentai.project.student.dto.StudentSummaryResponse;
+import com.studentai.project.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +30,7 @@ public class ClassroomService {
 
     public ClassroomDetailResponse getClassroomById(UUID id) {
         Classroom classroom = classroomRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Classroom not found: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Classroom not found: " + id));
         return toDetailResponse(classroom);
     }
 
