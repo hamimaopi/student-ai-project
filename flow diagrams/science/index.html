@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student AI — Science Classroom Diagrams</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --surface: #0f172a;
+      --card: #1e293b;
+      --border: rgba(255, 255, 255, 0.1);
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-purple: #a855f7;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      scroll-behavior: smooth;
+    }
+    header {
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+    .header-title h1 {
+      margin: 0 0 4px 0;
+      font-size: 1.35rem;
+      background: linear-gradient(135deg, #38bdf8, #6366f1, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .header-title p {
+      margin: 0;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .nav-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 8px 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.84rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-btn:hover {
+      background: rgba(56, 189, 248, 0.18);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
+    .diagram-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 40px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      overflow-x: auto;
+    }
+    .diagram-header {
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .diagram-header h2 {
+      margin: 0;
+      font-size: 1.35rem;
+      color: var(--text);
+    }
+    .diagram-header p {
+      margin: 4px 0 0;
+      font-size: 0.86rem;
+      color: var(--text-muted);
+    }
+    .diagram-viewport {
+      display: flex;
+      justify-content: center;
+      padding: 24px 16px;
+      background: #0d1322;
+      border-radius: 12px;
+      overflow-x: auto;
+    }
+    .mermaid {
+      width: 100%;
+      text-align: center;
+    }
+    .mermaid svg {
+      max-width: 100%;
+      height: auto;
+    }
+    .info-box {
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-top: 20px;
+      font-size: 0.88rem;
+      color: #bae6fd;
+    }
+    .info-box strong {
+      color: #38bdf8;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+      font-size: 0.88rem;
+    }
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--accent);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.76rem;
+      letter-spacing: 0.04em;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.84em;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-title">
+      <h1>🔬 Science Classroom — Flow & Sequence Architecture</h1>
+      <p>Visual Diagrams · Spring Boot 3.5 + React 19 + PostgreSQL + Ollama (llama3.1:8b)</p>
+    </div>
+    <nav class="nav-links">
+      <a href="#section-sequence" class="nav-btn"><span>1.</span> Sequence Diagram</a>
+      <a href="#section-architecture" class="nav-btn"><span>2.</span> Architecture Flowchart</a>
+      <a href="#section-statemachine" class="nav-btn"><span>3.</span> Cognitive State Machine</a>
+      <a href="#section-specs" class="nav-btn"><span>4.</span> Technical Contracts</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- SECTION 1: SEQUENCE DIAGRAM -->
+    <section id="section-sequence" class="diagram-card">
+      <div class="diagram-header">
+        <div>
+          <h2>1. End-to-End Sequence Diagram</h2>
+          <p>Traces user interactions, REST controllers, Spring AI evaluations, State Machine calculations, and Ollama persona generation.</p>
+        </div>
+      </div>
+
+      <div class="diagram-viewport">
+        <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    actor Teacher as Teacher
+    participant Web as React Frontend
+    participant API as Spring Boot API
+    participant ChatSvc as ChatService
+    participant LLM_Eval as TransitionEvaluator
+    participant StateEngine as StateTransitionEngine
+    participant LLM_Student as StudentResponseGenerator
+    participant DB as PostgreSQL DB
+
+    %% 1. Session Setup
+    Note over Teacher, DB: Phase 1: Setup and Session Creation
+    Teacher->>Web: Selects Science tab, enters Teacher Name, picks Avatar Badge
+    Web->>API: POST /api/sessions (classroomId, scenarioId, teacherName, badge)
+    API->>DB: INSERT INTO sessions and session_participants (currentState: CONFIDENTLY_WRONG)
+    DB-->>API: Created session record
+    API-->>Web: 201 Created SessionData
+    Web-->>Teacher: Live Science Classroom ready (Turn 0, State: Confidently Wrong)
+
+    %% 2. Teacher Message & Dual-LLM Pipeline
+    Note over Teacher, DB: Phase 2: Teacher Message and Dual-LLM Processing Loop
+    Teacher->>Web: Submits question: What do you think made Anthony sick?
+    Web->>Web: Optimistically append Teacher message to Chat UI, set thinking true
+    Web->>API: POST /api/chat/messages (sessionId, content, studentId)
+    API->>ChatSvc: handleTeacherMessage(sessionId, content, studentId)
+    ChatSvc->>DB: INSERT INTO messages (sender: TEACHER, turnNumber: 1)
+
+    %% 3. Pedagogical Evaluation Prompt
+    Note over ChatSvc, LLM_Eval: Step 2A: Pedagogical Move Evaluation (Ollama llama3.1:8b)
+    ChatSvc->>LLM_Eval: evaluateTransition(currentState, teacherMsg, scenario, history)
+    LLM_Eval->>API: Prompt Ollama to evaluate teacher move
+    Note over LLM_Eval: Classify: strategy (PROBING / DISCOVERY / TELLING)<br/>Classify: recommendation (ADVANCE / HOLD / REGRESS)
+    API-->>LLM_Eval: Strategy PROBING, Recommendation ADVANCE
+    LLM_Eval-->>ChatSvc: EvaluationResult(PROBING, ADVANCE)
+
+    %% 4. State Machine Transition
+    Note over ChatSvc, StateEngine: Step 2B: State Transition Engine
+    ChatSvc->>StateEngine: computeNextState(CONFIDENTLY_WRONG, PROBING, ADVANCE)
+    Note over StateEngine: Deterministic pedagogical transition:<br/>CONFIDENTLY_WRONG + PROBING + ADVANCE -> CONFUSED
+    StateEngine-->>ChatSvc: nextState = CONFUSED, changed = true
+    ChatSvc->>DB: UPDATE session_participants SET current_state = CONFUSED, turns_in_state = 1
+    ChatSvc->>DB: UPDATE sessions SET turn_count = turn_count + 2
+
+    %% 5. Persona Student Generation Prompt
+    Note over ChatSvc, LLM_Student: Step 2C: Persona Student Generation (Ollama llama3.1:8b)
+    ChatSvc->>LLM_Student: generateResponse(Sue, currentState: CONFUSED, teacherMsg, history)
+    LLM_Student->>API: Prompt Ollama: Embody Sue (8th grader, hesitant, thoughtful)
+    API-->>LLM_Student: Persona response reflecting confusion about Sam vs basketball
+    LLM_Student-->>ChatSvc: Sue Persona Reply
+
+    %% 6. Persistence & UI Sync
+    ChatSvc->>DB: INSERT INTO messages (sender: STUDENT, turnNumber: 2)
+    ChatSvc-->>API: SendMessageResponse(reply, participantState)
+    API-->>Web: 200 OK
+    Web->>Web: Set thinking false, append Sue reply, update state card to Confused
+    Web-->>Teacher: Sue hesitant response appears on screen
+
+    %% 7. Lesson Completion & Debrief
+    Note over Teacher, DB: Phase 3: Lesson Debrief Generation
+    alt Mastery Achieved (State = UNDERSTANDING) or Teacher clicks End Lesson
+        Teacher->>Web: Clicks End Lesson in Navbar
+        Web->>API: POST /api/sessions/id/end
+        API->>ChatSvc: endSession(sessionId)
+        ChatSvc->>LLM_Eval: Call DebriefEvaluator with full transcript
+        LLM_Eval->>API: Prompt Ollama for multi-turn pedagogical coaching analysis
+        API-->>LLM_Eval: Debrief JSON (summary, strategyBreakdown, breakthrough, tips)
+        ChatSvc->>DB: UPDATE sessions SET ended_at = NOW(), debrief = JSONB
+        ChatSvc-->>API: SessionData with Debrief
+        API-->>Web: 200 OK
+        Web-->>Teacher: Display DebriefModal with strategy breakdown and coaching advice
+    end
+        </pre>
+      </div>
+
+      <div class="info-box">
+        💡 <strong>Key Architectural Insight:</strong> The Science classroom decouples pedagogical evaluation from response generation. The <em>TransitionEvaluator</em> runs a strict classification prompt to move the deterministic state machine, and the <em>StudentResponseGenerator</em> separately embodies Sue's genuine 8th-grade voice reflecting that mental state.
+      </div>
+    </section>
+
+    <!-- SECTION 2: ARCHITECTURE FLOWCHART -->
+    <section id="section-architecture" class="diagram-card">
+      <div class="diagram-header">
+        <div>
+          <h2>2. High-Level Component Architecture</h2>
+          <p>Component topology and data pipeline between Frontend, Backend, PostgreSQL, and Ollama.</p>
+        </div>
+      </div>
+
+      <div class="diagram-viewport">
+        <pre class="mermaid">
+flowchart TD
+    subgraph Client [Frontend - React 19 and TypeScript]
+        UI_Home[Home and Teacher Setup View]
+        UI_Classroom[Live Science Classroom View]
+        UI_Chat[Interactive Chat Stream]
+        UI_StudentCard[Sue Profile Card]
+        UI_Debrief[Pedagogical Debrief Modal]
+        UI_Past[Past Conversations Modal]
+    end
+
+    subgraph Backend [Backend - Spring Boot 3.5]
+        C_Classroom[ClassroomController]
+        C_Session[SessionController]
+        C_Chat[ChatController]
+        
+        S_Chat[ChatService]
+        S_Session[SessionService]
+        
+        Evaluator[TransitionEvaluator - Spring AI Prompt 1]
+        SM[StateTransitionEngine - Deterministic Rules]
+        Generator[StudentResponseGenerator - Spring AI Prompt 2]
+        DebriefEval[DebriefEvaluator - Spring AI Prompt 3]
+    end
+
+    subgraph LocalAI [Local AI Service - Ollama]
+        Ollama[Ollama Engine - llama3.1 8b]
+    end
+
+    subgraph Database [PostgreSQL 16]
+        DB_Classroom[(classrooms and scenarios)]
+        DB_Student[(students and mental models)]
+        DB_Session[(sessions and participants)]
+        DB_Messages[(messages)]
+    end
+
+    UI_Home -->|1. Setup| C_Classroom
+    C_Classroom --> DB_Classroom
+    UI_Home -->|2. Start Session| C_Session
+    C_Session --> S_Session
+    S_Session --> DB_Session
+    S_Session --> UI_Classroom
+
+    UI_Chat -->|3. Send Message| C_Chat
+    C_Chat --> S_Chat
+    S_Chat -->|Store Teacher Msg| DB_Messages
+    S_Chat -->|Analyze Teacher Move| Evaluator
+    Evaluator -->|JSON Eval Prompt| Ollama
+    Ollama -->|Strategy and Recommendation| Evaluator
+    Evaluator --> SM
+    SM -->|Next Mental State| S_Chat
+    S_Chat -->|Update Participant State| DB_Session
+    S_Chat -->|Generate Persona Reply| Generator
+    Generator -->|Student Prompt and History| Ollama
+    Ollama -->|Sue Dialogue Reply| Generator
+    Generator --> S_Chat
+    S_Chat -->|Store Student Msg| DB_Messages
+    S_Chat -->|Reply and Updated State| UI_Chat
+    UI_Chat --> UI_StudentCard
+
+    UI_Classroom -->|4. End Session| C_Session
+    C_Session --> S_Session
+    S_Session --> DebriefEval
+    DebriefEval -->|Analyze Full Transcript| Ollama
+    Ollama -->|Debrief Report JSON| DebriefEval
+    DebriefEval -->|Save JSONB debrief| DB_Session
+    S_Session --> UI_Debrief
+
+    UI_Past -->|5. View History| C_Session
+    C_Session --> DB_Session
+    C_Session --> DB_Messages
+        </pre>
+      </div>
+    </section>
+
+    <!-- SECTION 3: COGNITIVE STATE MACHINE -->
+    <section id="section-statemachine" class="diagram-card">
+      <div class="diagram-header">
+        <div>
+          <h2>3. Sue's Cognitive Journey: State Machine</h2>
+          <p>Finite state transitions modeling Sue's conceptual transition from basketball exhaustion to viral incubation.</p>
+        </div>
+      </div>
+
+      <div class="diagram-viewport">
+        <pre class="mermaid">
+stateDiagram-v2
+    [*] --> CONFIDENTLY_WRONG
+
+    CONFIDENTLY_WRONG --> CONFIDENTLY_WRONG: Direct correction reinforces defense
+    CONFIDENTLY_WRONG --> DEFENSIVE: Blunt assertion of error
+    CONFIDENTLY_WRONG --> CONFUSED: Socratic probing on evidence
+
+    DEFENSIVE --> DEFENSIVE: Continued confrontation
+    DEFENSIVE --> CONFUSED: Empathetic reframe
+    DEFENSIVE --> CONFIDENTLY_WRONG: Abandoning inquiry
+
+    CONFUSED --> DEFENSIVE: Harsh correction
+    CONFUSED --> CONFUSED: Ambiguous guidance
+    CONFUSED --> TENTATIVELY_CORRECT: Guided discovery clue
+
+    TENTATIVELY_CORRECT --> CONFUSED: Overly complex explanation
+    TENTATIVELY_CORRECT --> TENTATIVELY_CORRECT: Open clarification probe
+    TENTATIVELY_CORRECT --> UNDERSTANDING: Incubation inquiry
+
+    UNDERSTANDING --> [*]
+        </pre>
+      </div>
+    </section>
+
+    <!-- SECTION 4: TECHNICAL SPECS -->
+    <section id="section-specs" class="diagram-card">
+      <div class="diagram-header">
+        <div>
+          <h2>4. Technical Specifications & REST Contracts</h2>
+          <p>Overview of endpoints, payload structures, and persistence models.</p>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>Description</th>
+            <th>Key Payload / Response</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>GET</code></td>
+            <td><code>/api/classrooms</code></td>
+            <td>Lists classrooms with nested scenarios and student profiles.</td>
+            <td><code>List&lt;ClassroomDetailResponse&gt;</code></td>
+          </tr>
+          <tr>
+            <td><code>POST</code></td>
+            <td><code>/api/sessions</code></td>
+            <td>Creates a live teaching session and initializes student mental model.</td>
+            <td>Request: <code>{ teacherName, teacherBadge, classroomId, scenarioId }</code></td>
+          </tr>
+          <tr>
+            <td><code>POST</code></td>
+            <td><code>/api/chat/messages</code></td>
+            <td>Dispatches teacher move; evaluates with LLM 1; executes state machine; generates LLM 2 student reply.</td>
+            <td>Response: <code>{ reply: ChatMessage, participantState: SessionParticipant }</code></td>
+          </tr>
+          <tr>
+            <td><code>POST</code></td>
+            <td><code>/api/sessions/{id}/end</code></td>
+            <td>Concludes lesson and runs multi-turn pedagogical debrief analysis via Ollama.</td>
+            <td>Response: <code>SessionData</code> with <code>debrief</code> JSONB</td>
+          </tr>
+          <tr>
+            <td><code>GET</code></td>
+            <td><code>/api/sessions</code></td>
+            <td>Fetches all past teaching sessions with participants and debrief summaries.</td>
+            <td><code>List&lt;SessionData&gt;</code></td>
+          </tr>
+          <tr>
+            <td><code>GET</code></td>
+            <td><code>/api/sessions/{id}/messages</code></td>
+            <td>Fetches chronological dialogue transcript for a session.</td>
+            <td><code>List&lt;ChatMessage&gt;</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      securityLevel: 'loose',
+      sequence: {
+        mirrorActors: false,
+        bottomMarginAdj: 10,
+        boxMargin: 10
+      }
+    });
+  </script>
+</body>
+</html>

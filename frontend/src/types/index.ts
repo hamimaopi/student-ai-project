@@ -12,20 +12,18 @@ export type StudentState =
 export type TeacherBadge = 'fox' | 'otter' | 'owl' | 'panda';
 
 export interface TeacherProfile {
-  id?: string;
   name: string;
   avatarBadge: TeacherBadge;
 }
 
-export interface Classroom {
+export interface ScenarioItem {
   id: string;
-  subject: 'SCIENCE' | 'MATH' | 'LITERACY';
-  name: string;
-  description?: string;
-  createdAt?: string;
+  title: string;
+  description: string;
+  isAiGenerated: boolean;
 }
 
-export interface Student {
+export interface StudentSummary {
   id: string;
   name: string;
   personality: string;
@@ -33,48 +31,63 @@ export interface Student {
   avatarUrl: string;
 }
 
-export interface Scenario {
+export interface ClassroomDetail {
   id: string;
-  classroomId: string;
-  title: string;
+  subject: string;
+  name: string;
   description: string;
-  isAiGenerated: boolean;
-}
-
-export interface StudentMentalModel {
-  id: string;
-  scenarioId: string;
-  studentId: string;
-  wrongBelief: string;
-  whyItFeelsRight: string;
-  defenses: string[];
+  scenarios: ScenarioItem[];
+  students: StudentSummary[];
 }
 
 export interface SessionParticipant {
   id: string;
-  sessionId: string;
   studentId: string;
-  studentName?: string;
-  avatarUrl?: string;
+  studentName: string;
+  avatarUrl: string;
+  personality: string;
   currentState: StudentState;
   turnsInState: number;
-  stateSummary?: string;
+  stateSummary?: string | null;
 }
 
-export interface Session {
+export interface DebriefData {
+  masteryAchieved: boolean;
+  finalStudentState: StudentState;
+  totalTurns: number;
+  summary: string;
+  breakthroughMoment: string;
+  strategyBreakdown: Record<string, number>;
+  strengths: string[];
+  growthOpportunities: string[];
+}
+
+export interface SessionData {
   id: string;
-  teacherId?: string | null;
-  teacherName?: string;
-  teacherBadge?: TeacherBadge;
+  teacherName: string;
+  teacherBadge: TeacherBadge;
   classroomId: string;
+  classroomName: string;
+  subject: string;
   scenarioId: string;
-  scenarioTitle?: string;
-  participants: SessionParticipant[];
+  scenarioTitle: string;
+  scenarioDescription: string;
   startedAt: string;
   endedAt?: string | null;
+  participants: SessionParticipant[];
+  turnCount: number;
+  debrief?: DebriefData | null;
 }
 
-export interface Message {
+export interface CreateSessionPayload {
+  teacherName: string;
+  teacherBadge: string;
+  classroomId: string;
+  scenarioId: string;
+  studentIds?: string[];
+}
+
+export interface ChatMessage {
   id: string;
   sessionId: string;
   senderType: 'TEACHER' | 'STUDENT';
@@ -86,12 +99,13 @@ export interface Message {
   createdAt: string;
 }
 
-export interface ChatSendRequest {
+export interface SendMessagePayload {
   sessionId: string;
-  message: string;
+  content: string;
+  targetStudentId?: string | null;
 }
 
 export interface ChatSendResponse {
-  reply: Message;
+  reply: ChatMessage;
   participantState: SessionParticipant;
 }
