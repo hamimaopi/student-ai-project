@@ -1,0 +1,96 @@
+.drawer {
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  border-left: 4px solid var(--accent-cyan);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.scenarioIcon {
+  font-size: 1.2rem;
+}
+
+.badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.title {
+  font-size: 1.05rem;
+  margin: 0;
+  font-weight: 700;
+}
+
+.toggleBtn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.body {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.description {
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--text-main);
+  background: var(--bg-surface);
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+  margin-bottom: 12px;
+}
+
+.cluesRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 0.75rem;
+}
+
+.clueCyan {
+  background: rgba(56, 189, 248, 0.12);
+  color: var(--accent-cyan);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
+.cluePurple {
+  background: rgba(168, 85, 247, 0.12);
+  color: var(--accent-purple);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+}
+
+.clueRed {
+  background: rgba(244, 63, 94, 0.12);
+  color: var(--state-confidently-wrong);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(244, 63, 94, 0.25);
+}

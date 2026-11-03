@@ -1,0 +1,213 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1150 820" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; }
+      .card { fill: #ffffff; stroke-width: 1.5; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.07)); rx: 10px; }
+      .card-teacher { stroke: #6366f1; }
+      .card-classroom { stroke: #0284c7; }
+      .card-student { stroke: #3b82f6; }
+      .card-scenario { stroke: #8b5cf6; }
+      .card-mental { stroke: #d97706; }
+      .card-junction { stroke: #64748b; stroke-dasharray: 4 3; }
+      .card-session { stroke: #10b981; }
+      .card-participant { stroke: #059669; }
+      .card-message { stroke: #0d9488; }
+
+      .header-teacher { fill: #4f46e5; }
+      .header-classroom { fill: #0284c7; }
+      .header-student { fill: #2563eb; }
+      .header-scenario { fill: #7c3aed; }
+      .header-mental { fill: #d97706; }
+      .header-junction { fill: #475569; }
+      .header-session { fill: #10b981; }
+      .header-participant { fill: #059669; }
+      .header-message { fill: #0d9488; }
+
+      .title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 14px; font-weight: 700; fill: #ffffff; }
+      .field { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 11.5px; fill: #334155; }
+      .type { font-family: "SF Mono", Monaco, Consolas, monospace; font-size: 10.5px; fill: #94a3b8; }
+      .pk { font-weight: 700; fill: #dc2626; }
+      .fk { font-weight: 700; fill: #2563eb; }
+      .wire { stroke: #64748b; stroke-width: 1.8; fill: none; stroke-linecap: round; }
+      .wire-dash { stroke: #94a3b8; stroke-width: 1.5; fill: none; stroke-dasharray: 4 4; }
+      .label-bg { fill: #e2e8f0; rx: 4px; }
+      .label-text { font-family: -apple-system, sans-serif; font-size: 10px; font-weight: 600; fill: #475569; text-anchor: middle; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#64748b" />
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1150" height="820" fill="#f8fafc" rx="16" />
+
+  <!-- Diagram Title -->
+  <text x="40" y="42" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="22" font-weight="800" fill="#0f172a">Student AI Project — Database ER Diagram</text>
+  <text x="40" y="64" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" fill="#64748b">PostgreSQL Schema Architecture for Science &amp; Math Simulations</text>
+
+  <!-- ================= TOP ROW ================= -->
+  
+  <!-- TEACHER (Top Left) -->
+  <g transform="translate(40, 95)">
+    <rect width="210" height="135" class="card card-teacher" />
+    <path d="M 0 10 Q 0 0 10 0 L 200 0 Q 210 0 210 10 L 210 32 L 0 32 Z" class="header-teacher" />
+    <text x="12" y="21" class="title">🧑‍🏫 TEACHER</text>
+    <text x="12" y="52" class="field"><tspan class="pk">PK</tspan> id <tspan class="type">UUID</tspan></text>
+    <text x="12" y="73" class="field">name <tspan class="type">VARCHAR(100)</tspan></text>
+    <text x="12" y="94" class="field">avatar_badge <tspan class="type">VARCHAR(50)</tspan></text>
+    <text x="12" y="115" class="field">created_at <tspan class="type">TIMESTAMPTZ</tspan></text>
+  </g>
+
+  <!-- CLASSROOM (Top Middle) -->
+  <g transform="translate(310, 95)">
+    <rect width="250" height="155" class="card card-classroom" />
+    <path d="M 0 10 Q 0 0 10 0 L 240 0 Q 250 0 250 10 L 250 32 L 0 32 Z" class="header-classroom" />
+    <text x="12" y="21" class="title">🏫 CLASSROOM</text>
+    <text x="12" y="52" class="field"><tspan class="pk">PK</tspan> id <tspan class="type">UUID</tspan></text>
+    <text x="12" y="73" class="field">subject <tspan class="type">VARCHAR(50)</tspan></text>
+    <text x="12" y="94" class="field">name <tspan class="type">VARCHAR(100)</tspan></text>
+    <text x="12" y="115" class="field">description <tspan class="type">TEXT</tspan></text>
+    <text x="12" y="136" class="field">created_at <tspan class="type">TIMESTAMPTZ</tspan></text>
+  </g>
+
+  <!-- SCENARIO (Top Right) -->
+  <g transform="translate(620, 95)">
+    <rect width="250" height="155" class="card card-scenario" />
+    <path d="M 0 10 Q 0 0 10 0 L 240 0 Q 250 0 250 10 L 250 32 L 0 32 Z" class="header-scenario" />
+    <text x="12" y="21" class="title">📖 SCENARIO</text>
+    <text x="12" y="52" class="field"><tspan class="pk">PK</tspan> id <tspan class="type">UUID</tspan></text>
+    <text x="12" y="73" class="field"><tspan class="fk">FK</tspan> classroom_id <tspan class="type">UUID</tspan></text>
+    <text x="12" y="94" class="field">title <tspan class="type">VARCHAR(150)</tspan></text>
+    <text x="12" y="115" class="field">description <tspan class="type">TEXT</tspan></text>
+    <text x="12" y="136" class="field">is_ai_generated <tspan class="type">BOOL</tspan></text>
+  </g>
+
+  <!-- ================= MIDDLE ROW ================= -->
+
+  <!-- STUDENT (Middle Left) -->
+  <g transform="translate(40, 295)">
+    <rect width="210" height="155" class="card card-student" />
+    <path d="M 0 10 Q 0 0 10 0 L 200 0 Q 210 0 210 10 L 210 32 L 0 32 Z" class="header-student" />
+    <text x="12" y="21" class="title">🎒 STUDENT (AI)</text>
+    <text x="12" y="52" class="field"><tspan class="pk">PK</tspan> id <tspan class="type">UUID</tspan></text>
+    <text x="12" y="73" class="field">name <tspan class="type">VARCHAR(50)</tspan></text>
+    <text x="12" y="94" class="field">personality <tspan class="type">TEXT</tspan></text>
+    <text x="12" y="115" class="field">grade_level <tspan class="type">VARCHAR(20)</tspan></text>
+    <text x="12" y="136" class="field">avatar_url <tspan class="type">VARCHAR(255)</tspan></text>
+  </g>
+
+  <!-- CLASSROOM_STUDENT (Junction) -->
+  <g transform="translate(310, 310)">
+    <rect width="250" height="105" class="card card-junction" />
+    <path d="M 0 10 Q 0 0 10 0 L 240 0 Q 250 0 250 10 L 250 30 L 0 30 Z" class="header-junction" />
+    <text x="12" y="20" class="title">🔗 CLASSROOM_STUDENT</text>
+    <text x="12" y="50" class="field"><tspan class="pk">PK</tspan><tspan class="fk">,FK</tspan> classroom_id <tspan class="type">UUID</tspan></text>
+    <text x="12" y="70" class="field"><tspan class="pk">PK</tspan><tspan class="fk">,FK</tspan> student_id <tspan class="type">UUID</tspan></text>
+    <text x="12" y="90" class="field">enrolled_at <tspan class="type">TIMESTAMPTZ</tspan></text>
+  </g>
+
+  <!-- STUDENT_MENTAL_MODEL (Middle Right) -->
+  <g transform="translate(620, 295)">
+    <rect width="250" height="175" class="card card-mental" />
+    <path d="M 0 10 Q 0 0 10 0 L 240 0 Q 250 0 250 10 L 250 32 L 0 32 Z" class="header-mental" />
+    <text x="12" y="21" class="title">🧠 STUDENT_MENTAL_MODEL</text>
+    <text x="12" y="52" class="field"><tspan class="pk">PK</tspan> id <tspan class="type">UUID</tspan></text>
+    <text x="12" y="73" class="field"><tspan class="fk">FK</tspan> scenario_id <tspan class="type">UUID</tspan></text>
+    <text x="12" y="94" class="field"><tspan class="fk">FK</tspan> student_id <tspan class="type">UUID</tspan></text>
+    <text x="12" y="115" class="field">wrong_belief <tspan class="type">TEXT</tspan></text>
+    <text x="12" y="136" class="field">why_it_feels_right <tspan class="type">TEXT</tspan></text>
+    <text x="12" y="157" class="field">defenses <tspan class="type">JSONB</tspan></text>
+  </g>
+
+  <!-- ================= BOTTOM ROW (LIVE SESSIONS) ================= -->
+
+  <!-- SESSION (Bottom Center-Left) -->
+  <g transform="translate(40, 520)">
+    <rect width="270" height="195" class="card card-session" />
+    <path d="M 0 10 Q 0 0 10 0 L 260 0 Q 270 0 270 10 L 270 32 L 0 32 Z" class="header-session" />
+    <text x="12" y="21" class="title">⏱️ SESSION</text>
+    <text x="12" y="52" class="field"><tspan class="pk">PK</tspan> id <tspan class="type">UUID</tspan></text>
+    <text x="12" y="73" class="field"><tspan class="fk">FK</tspan> teacher_id <tspan class="type">UUID (nullable)</tspan></text>
+    <text x="12" y="94" class="field"><tspan class="fk">FK</tspan> classroom_id <tspan class="type">UUID</tspan></text>
+    <text x="12" y="115" class="field"><tspan class="fk">FK</tspan> scenario_id <tspan class="type">UUID</tspan></text>
+    <text x="12" y="136" class="field">started_at <tspan class="type">TIMESTAMPTZ</tspan></text>
+    <text x="12" y="157" class="field">ended_at <tspan class="type">TIMESTAMPTZ</tspan></text>
+    <text x="12" y="178" class="field">debrief <tspan class="type">JSONB</tspan></text>
+  </g>
+
+  <!-- SESSION_PARTICIPANT (Bottom Middle) -->
+  <g transform="translate(370, 520)">
+    <rect width="290" height="195" class="card card-participant" />
+    <path d="M 0 10 Q 0 0 10 0 L 280 0 Q 290 0 290 10 L 290 32 L 0 32 Z" class="header-participant" />
+    <text x="12" y="21" class="title">👤 SESSION_PARTICIPANT</text>
+    <text x="12" y="52" class="field"><tspan class="pk">PK</tspan> id <tspan class="type">UUID</tspan></text>
+    <text x="12" y="73" class="field"><tspan class="fk">FK</tspan> session_id <tspan class="type">UUID</tspan></text>
+    <text x="12" y="94" class="field"><tspan class="fk">FK</tspan> student_id <tspan class="type">UUID</tspan></text>
+    <text x="12" y="115" class="field"><tspan class="fk">FK</tspan> mental_model_id <tspan class="type">UUID</tspan></text>
+    <text x="12" y="136" class="field">current_state <tspan class="type">VARCHAR(30)</tspan></text>
+    <text x="12" y="157" class="field">turns_in_state <tspan class="type">INT</tspan></text>
+    <text x="12" y="178" class="field">state_summary <tspan class="type">TEXT</tspan></text>
+  </g>
+
+  <!-- MESSAGE (Bottom Right) -->
+  <g transform="translate(720, 520)">
+    <rect width="300" height="195" class="card card-message" />
+    <path d="M 0 10 Q 0 0 10 0 L 290 0 Q 300 0 300 10 L 300 32 L 0 32 Z" class="header-message" />
+    <text x="12" y="21" class="title">💬 MESSAGE (Chat Turns)</text>
+    <text x="12" y="52" class="field"><tspan class="pk">PK</tspan> id <tspan class="type">UUID</tspan></text>
+    <text x="12" y="73" class="field"><tspan class="fk">FK</tspan> session_id <tspan class="type">UUID</tspan></text>
+    <text x="12" y="94" class="field">sender_type <tspan class="type">VARCHAR (TEACHER|STUDENT)</tspan></text>
+    <text x="12" y="115" class="field"><tspan class="fk">FK</tspan> student_id <tspan class="type">UUID (NULL if teacher)</tspan></text>
+    <text x="12" y="136" class="field">content <tspan class="type">TEXT</tspan></text>
+    <text x="12" y="157" class="field">turn_number <tspan class="type">INT</tspan></text>
+    <text x="12" y="178" class="field">created_at <tspan class="type">TIMESTAMPTZ</tspan></text>
+  </g>
+
+  <!-- ================= RELATIONSHIP WIRES ================= -->
+
+  <!-- Classroom -> Scenario -->
+  <path d="M 560 170 L 620 170" class="wire" marker-end="url(#arrow)" />
+  <rect x="575" y="158" width="30" height="16" class="label-bg" />
+  <text x="590" y="170" class="label-text">1:N</text>
+
+  <!-- Classroom -> ClassroomStudent -->
+  <path d="M 435 250 L 435 310" class="wire" marker-end="url(#arrow)" />
+
+  <!-- Student -> ClassroomStudent -->
+  <path d="M 250 360 L 310 360" class="wire" marker-end="url(#arrow)" />
+
+  <!-- Scenario -> StudentMentalModel -->
+  <path d="M 745 250 L 745 295" class="wire" marker-end="url(#arrow)" />
+
+  <!-- Student -> StudentMentalModel -->
+  <path d="M 250 390 L 620 390" class="wire-dash" marker-end="url(#arrow)" />
+
+  <!-- Teacher -> Session -->
+  <path d="M 145 230 L 145 520" class="wire" marker-end="url(#arrow)" />
+
+  <!-- Classroom -> Session (curved around left) -->
+  <path d="M 320 250 L 320 480 L 220 480 L 220 520" class="wire" marker-end="url(#arrow)" />
+
+  <!-- Scenario -> Session (from scenario down to session) -->
+  <path d="M 640 250 L 640 490 L 280 490 L 280 520" class="wire" marker-end="url(#arrow)" />
+
+  <!-- Session -> SessionParticipant -->
+  <path d="M 310 600 L 370 600" class="wire" marker-end="url(#arrow)" />
+  <rect x="325" y="588" width="30" height="16" class="label-bg" />
+  <text x="340" y="600" class="label-text">1:N</text>
+
+  <!-- Student -> SessionParticipant -->
+  <path d="M 180 450 L 180 500 L 480 500 L 480 520" class="wire" marker-end="url(#arrow)" />
+
+  <!-- StudentMentalModel -> SessionParticipant -->
+  <path d="M 720 470 L 720 495 L 580 495 L 580 520" class="wire" marker-end="url(#arrow)" />
+
+  <!-- Session -> Message -->
+  <path d="M 200 715 L 200 755 L 870 755 L 870 715" class="wire" marker-end="url(#arrow)" />
+  <rect x="520" y="745" width="30" height="16" class="label-bg" />
+  <text x="535" y="757" class="label-text">1:N</text>
+
+  <!-- Student -> Message (dashed) -->
+  <path d="M 970 520 L 970 480 L 850 480 L 850 450" class="wire-dash" />
+
+</svg>

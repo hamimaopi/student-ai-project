@@ -7,7 +7,7 @@ Currently in **Phase 0 — Project Setup**.
 ## Tech Stack
 
 - **Frontend:** React 19, Vite 6
-- **Backend:** Java 17, Spring Boot 3.5.16, Spring AI 1.1.8, Maven
+- **Backend:** Java 17, Spring Boot 3.5.16, Spring AI 1.1.8, Lombok, Maven
 - **Database:** PostgreSQL 17, Spring Data JPA, Flyway
 - **AI:** Ollama with Llama 3.1 8B (running locally)
 - **Containerization:** Docker and Docker Compose
@@ -82,9 +82,7 @@ student-ai-project/
 ├── backend/               # Spring Boot application
 ├── scripts/
 │   ├── dev-start.sh       # Start local development
-│   ├── dev-stop.sh        # Stop local development
-│   ├── start.sh           # Start Docker deployment
-│   └── stop.sh            # Stop Docker deployment
+│   └── dev-stop.sh        # Stop local development
 ├── compose.yaml
 ├── compose.dev.yaml
 ├── Dockerfile
