@@ -109,8 +109,8 @@
 .timeBadge {
   font-size: 0.68rem;
   color: var(--text-dim);
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: var(--bg-surface);
+  border: 1px solid var(--glass-border);
   padding: 1px 7px;
   border-radius: var(--radius-full);
   display: inline-flex;
@@ -150,13 +150,13 @@
   margin: 18px auto 8px;
   width: 100%;
   max-width: 560px;
-  background: rgba(15, 23, 42, 0.85);
+  background: var(--glass-bg);
   backdrop-filter: blur(16px);
   border: 1px solid var(--accent-indigo);
   border-radius: var(--radius-lg);
   padding: 20px 24px;
   text-align: center;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--glass-shadow);
 }
 
 .concludedHeader {

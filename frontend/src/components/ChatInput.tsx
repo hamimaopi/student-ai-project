@@ -137,18 +137,11 @@ export const ChatInput: React.FC<Props> = ({
               textareaRef.current?.focus();
             }}
             className={styles.starterChip}
-            onMouseEnter={(e) => {
-              if (!disabled) {
-                e.currentTarget.style.background = activeHintConfig.bgVar;
-                e.currentTarget.style.color = activeHintConfig.colorVar;
-                e.currentTarget.style.borderColor = activeHintConfig.colorVar;
-              }
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
-              e.currentTarget.style.color = 'var(--text-muted)';
-              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.09)';
-            }}
+            style={{
+              '--chip-hover-bg': activeHintConfig.bgVar,
+              '--chip-hover-color': activeHintConfig.colorVar,
+              '--chip-hover-border': activeHintConfig.colorVar
+            } as React.CSSProperties}
           >
             {starter}
           </button>
