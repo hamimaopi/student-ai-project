@@ -93,7 +93,8 @@ CREATE TABLE session (
     classroom_id  UUID NOT NULL REFERENCES classroom(id) ON DELETE CASCADE,
     scenario_id   UUID NOT NULL REFERENCES scenario(id) ON DELETE CASCADE,
     started_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    ended_at      TIMESTAMPTZ
+    ended_at      TIMESTAMPTZ,
+    debrief       JSONB
 );
 
 -- ----------------------------------------------------------------------------

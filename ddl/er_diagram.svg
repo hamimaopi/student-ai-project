@@ -108,21 +108,22 @@
 
   <!-- STUDENT_MENTAL_MODEL (Middle Right) -->
   <g transform="translate(620, 295)">
-    <rect width="250" height="155" class="card card-mental" />
+    <rect width="250" height="175" class="card card-mental" />
     <path d="M 0 10 Q 0 0 10 0 L 240 0 Q 250 0 250 10 L 250 32 L 0 32 Z" class="header-mental" />
     <text x="12" y="21" class="title">🧠 STUDENT_MENTAL_MODEL</text>
     <text x="12" y="52" class="field"><tspan class="pk">PK</tspan> id <tspan class="type">UUID</tspan></text>
     <text x="12" y="73" class="field"><tspan class="fk">FK</tspan> scenario_id <tspan class="type">UUID</tspan></text>
     <text x="12" y="94" class="field"><tspan class="fk">FK</tspan> student_id <tspan class="type">UUID</tspan></text>
     <text x="12" y="115" class="field">wrong_belief <tspan class="type">TEXT</tspan></text>
-    <text x="12" y="136" class="field">defenses <tspan class="type">JSONB</tspan></text>
+    <text x="12" y="136" class="field">why_it_feels_right <tspan class="type">TEXT</tspan></text>
+    <text x="12" y="157" class="field">defenses <tspan class="type">JSONB</tspan></text>
   </g>
 
   <!-- ================= BOTTOM ROW (LIVE SESSIONS) ================= -->
 
   <!-- SESSION (Bottom Center-Left) -->
   <g transform="translate(40, 520)">
-    <rect width="270" height="175" class="card card-session" />
+    <rect width="270" height="195" class="card card-session" />
     <path d="M 0 10 Q 0 0 10 0 L 260 0 Q 270 0 270 10 L 270 32 L 0 32 Z" class="header-session" />
     <text x="12" y="21" class="title">⏱️ SESSION</text>
     <text x="12" y="52" class="field"><tspan class="pk">PK</tspan> id <tspan class="type">UUID</tspan></text>
@@ -131,11 +132,12 @@
     <text x="12" y="115" class="field"><tspan class="fk">FK</tspan> scenario_id <tspan class="type">UUID</tspan></text>
     <text x="12" y="136" class="field">started_at <tspan class="type">TIMESTAMPTZ</tspan></text>
     <text x="12" y="157" class="field">ended_at <tspan class="type">TIMESTAMPTZ</tspan></text>
+    <text x="12" y="178" class="field">debrief <tspan class="type">JSONB</tspan></text>
   </g>
 
   <!-- SESSION_PARTICIPANT (Bottom Middle) -->
   <g transform="translate(370, 520)">
-    <rect width="290" height="175" class="card card-participant" />
+    <rect width="290" height="195" class="card card-participant" />
     <path d="M 0 10 Q 0 0 10 0 L 280 0 Q 290 0 290 10 L 290 32 L 0 32 Z" class="header-participant" />
     <text x="12" y="21" class="title">👤 SESSION_PARTICIPANT</text>
     <text x="12" y="52" class="field"><tspan class="pk">PK</tspan> id <tspan class="type">UUID</tspan></text>
@@ -144,6 +146,7 @@
     <text x="12" y="115" class="field"><tspan class="fk">FK</tspan> mental_model_id <tspan class="type">UUID</tspan></text>
     <text x="12" y="136" class="field">current_state <tspan class="type">VARCHAR(30)</tspan></text>
     <text x="12" y="157" class="field">turns_in_state <tspan class="type">INT</tspan></text>
+    <text x="12" y="178" class="field">state_summary <tspan class="type">TEXT</tspan></text>
   </g>
 
   <!-- MESSAGE (Bottom Right) -->
@@ -197,12 +200,12 @@
   <path d="M 180 450 L 180 500 L 480 500 L 480 520" class="wire" marker-end="url(#arrow)" />
 
   <!-- StudentMentalModel -> SessionParticipant -->
-  <path d="M 720 450 L 720 490 L 580 490 L 580 520" class="wire" marker-end="url(#arrow)" />
+  <path d="M 720 470 L 720 495 L 580 495 L 580 520" class="wire" marker-end="url(#arrow)" />
 
   <!-- Session -> Message -->
-  <path d="M 200 695 L 200 740 L 870 740 L 870 715" class="wire" marker-end="url(#arrow)" />
-  <rect x="520" y="730" width="30" height="16" class="label-bg" />
-  <text x="535" y="742" class="label-text">1:N</text>
+  <path d="M 200 715 L 200 755 L 870 755 L 870 715" class="wire" marker-end="url(#arrow)" />
+  <rect x="520" y="745" width="30" height="16" class="label-bg" />
+  <text x="535" y="757" class="label-text">1:N</text>
 
   <!-- Student -> Message (dashed) -->
   <path d="M 970 520 L 970 480 L 850 480 L 850 450" class="wire-dash" />
