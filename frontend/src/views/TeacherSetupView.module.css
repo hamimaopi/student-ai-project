@@ -1,0 +1,324 @@
+.pageContainer {
+  min-height: calc(100vh - 68px);
+  display: flex;
+  flex-direction: column;
+}
+
+.heroContent {
+  max-width: 860px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.badgePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  background: rgba(56, 189, 248, 0.16);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: var(--accent-cyan);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.heroPillsRow {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.section {
+  flex: 1;
+  padding: 40px 20px 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sectionWrapper {
+  max-width: 860px;
+  width: 100%;
+}
+
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.sectionTitle {
+  font-size: 1.9rem;
+  margin-bottom: 6px;
+  font-weight: 800;
+}
+
+.sectionSubtitle {
+  color: var(--text-muted);
+  font-size: 0.94rem;
+  margin: 0;
+}
+
+.tabsBar {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 28px;
+  border-bottom: 1px solid var(--glass-border);
+  padding-bottom: 12px;
+}
+
+.tabButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 28px;
+  border-radius: var(--radius-lg);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.tabButtonScience {
+  background: var(--bg-surface);
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.tabButtonScienceActive {
+  background: var(--gradient-brand-subtle);
+  border: 1.5px solid var(--accent-cyan);
+  color: var(--text-main);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
+}
+
+.tabButtonMath {
+  background: var(--bg-surface);
+  border: 1px solid var(--glass-border);
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.tabButtonMathActive {
+  background: var(--bg-surface-active);
+  border: 1.5px solid var(--accent-indigo);
+  color: var(--text-main);
+}
+
+.tabIcon {
+  font-size: 1.3rem;
+}
+
+.tabBadgeActive {
+  font-size: 0.68rem;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.tabBadgeComingSoon {
+  font-size: 0.68rem;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(234, 179, 8, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(234, 179, 8, 0.3);
+}
+
+.errorBanner {
+  background: rgba(244, 63, 94, 0.15);
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  color: var(--state-confidently-wrong);
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  margin-bottom: 20px;
+}
+
+.setupCard {
+  padding: 32px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 28px;
+}
+
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.inputLabel {
+  display: block;
+  font-size: 0.84rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-main);
+}
+
+.textInput {
+  width: 100%;
+  background: var(--bg-surface);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  color: var(--text-main);
+  font-size: 0.95rem;
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.textInput:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+}
+
+.rightCol {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.assignmentBadge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.classroomHeading {
+  font-size: 1.25rem;
+  margin-bottom: 8px;
+}
+
+.classroomDesc {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.studentCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--bg-surface);
+  padding: 12px 16px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+}
+
+.studentAvatar {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.studentNameRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.studentName {
+  font-weight: 700;
+  font-size: 0.98rem;
+}
+
+.studentGradeBadge {
+  font-size: 0.7rem;
+  padding: 1px 8px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+}
+
+.studentPersonality {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+.scenarioFooter {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 12px;
+}
+
+.scenarioTopicStrong {
+  color: var(--text-main);
+}
+
+.submitRow {
+  text-align: center;
+  margin-top: 4px;
+}
+
+.enterButton {
+  width: 100%;
+  max-width: 420px;
+  padding: 16px 36px;
+  font-size: 1.08rem;
+  border-radius: var(--radius-xl);
+}
+
+.mathPlaceholderCard {
+  padding: 48px 32px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.mathIcon {
+  font-size: 3rem;
+}
+
+.mathTitle {
+  font-size: 1.4rem;
+  margin: 0;
+}
+
+.mathDescription {
+  color: var(--text-muted);
+  max-width: 480px;
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.switchBackBtn {
+  margin-top: 8px;
+  padding: 10px 20px;
+}

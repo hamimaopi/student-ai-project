@@ -1,0 +1,48 @@
+.container {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.badgeButton {
+  flex: 1 1 calc(50% - 6px);
+  min-width: 130px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  border: 1px solid var(--glass-border);
+  box-shadow: none;
+  cursor: pointer;
+  color: var(--text-main);
+  transition: all var(--transition-fast);
+  text-align: left;
+}
+
+.badgeButtonSelected {
+  background: var(--gradient-brand-subtle);
+  border: 1.5px solid var(--accent-cyan);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
+}
+
+.badgeEmoji {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.badgeName {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-main);
+}
+
+.badgeNameSelected {
+  color: var(--accent-cyan);
+}
+
+.badgeDesc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}

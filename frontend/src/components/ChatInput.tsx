@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { StudentState } from '../types';
+import styles from './ChatInput.module.css';
 
 interface Props {
   onSendMessage: (content: string) => void;
@@ -111,45 +112,15 @@ export const ChatInput: React.FC<Props> = ({
   };
 
   return (
-    <div
-      id="chat-input-wrapper"
-      style={{
-        borderTop: '1px solid var(--glass-border)',
-        background: 'rgba(10, 14, 26, 0.85)',
-        backdropFilter: 'blur(16px)',
-        padding: '16px 24px 20px'
-      }}
-    >
+    <div id="chat-input-wrapper" className={styles.wrapper}>
       {/* Pedagogical Prompt Chips dynamically updating per student mental model */}
-      <div
-        key={studentState}
-        className="animate-fade-in"
-        style={{
-          display: 'flex',
-          gap: '8px',
-          overflowX: 'auto',
-          paddingBottom: '10px',
-          marginBottom: '8px',
-          scrollbarWidth: 'none',
-          alignItems: 'center'
-        }}
-      >
+      <div key={studentState} className={`animate-fade-in ${styles.chipsBar}`}>
         <div
+          className={styles.stateTagPill}
           style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '5px',
-            fontSize: '0.68rem',
-            fontWeight: 800,
-            letterSpacing: '0.04em',
-            padding: '3px 9px',
-            borderRadius: 'var(--radius-full)',
             background: activeHintConfig.bgVar,
             color: activeHintConfig.colorVar,
-            border: `1px solid ${activeHintConfig.colorVar}`,
-            whiteSpace: 'nowrap',
-            marginRight: '2px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+            border: `1px solid ${activeHintConfig.colorVar}`
           }}
         >
           <span>{activeHintConfig.icon}</span>
@@ -165,17 +136,7 @@ export const ChatInput: React.FC<Props> = ({
               setContent(starter);
               textareaRef.current?.focus();
             }}
-            style={{
-              background: 'rgba(255, 255, 255, 0.04)',
-              border: '1px solid rgba(255, 255, 255, 0.09)',
-              color: 'var(--text-muted)',
-              fontSize: '0.75rem',
-              padding: '4px 12px',
-              borderRadius: 'var(--radius-full)',
-              cursor: disabled ? 'not-allowed' : 'pointer',
-              whiteSpace: 'nowrap',
-              transition: 'all var(--transition-fast)'
-            }}
+            className={styles.starterChip}
             onMouseEnter={(e) => {
               if (!disabled) {
                 e.currentTarget.style.background = activeHintConfig.bgVar;
@@ -195,15 +156,8 @@ export const ChatInput: React.FC<Props> = ({
       </div>
 
       {/* Main Form */}
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          display: 'flex',
-          gap: '12px',
-          alignItems: 'flex-end'
-        }}
-      >
-        <div style={{ flex: 1, position: 'relative' }}>
+      <form onSubmit={handleSubmit} className={styles.form}>
+        <div className={styles.inputWrapper}>
           <textarea
             ref={textareaRef}
             id="chat-input-textarea"
@@ -213,28 +167,7 @@ export const ChatInput: React.FC<Props> = ({
             onChange={(e) => setContent(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={disabled ? `${studentName} is reflecting on your question...` : `Guide ${studentName}'s thinking or ask a question... (Press Enter to send)`}
-            style={{
-              width: '100%',
-              background: 'rgba(255, 255, 255, 0.05)',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
-              borderRadius: 'var(--radius-lg)',
-              padding: '12px 16px',
-              color: 'var(--text-main)',
-              fontSize: '0.94rem',
-              fontFamily: 'inherit',
-              lineHeight: 1.5,
-              resize: 'none',
-              outline: 'none',
-              transition: 'border-color var(--transition-fast), box-shadow var(--transition-fast)'
-            }}
-            onFocus={(e) => {
-              e.target.style.borderColor = 'var(--accent-cyan)';
-              e.target.style.boxShadow = '0 0 0 3px rgba(56, 189, 248, 0.15)';
-            }}
-            onBlur={(e) => {
-              e.target.style.borderColor = 'rgba(255, 255, 255, 0.12)';
-              e.target.style.boxShadow = 'none';
-            }}
+            className={styles.textarea}
           />
         </div>
 
@@ -242,13 +175,7 @@ export const ChatInput: React.FC<Props> = ({
           type="submit"
           id="chat-send-button"
           disabled={disabled || !content.trim()}
-          className="btn-primary"
-          style={{
-            height: '52px',
-            padding: '0 24px',
-            borderRadius: 'var(--radius-lg)',
-            fontSize: '0.95rem'
-          }}
+          className={`btn-primary ${styles.sendButton}`}
         >
           <span>Send</span>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

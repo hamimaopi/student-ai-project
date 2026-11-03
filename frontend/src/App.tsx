@@ -5,6 +5,8 @@ import { Navbar } from './components/Navbar';
 import { TeacherSetupView } from './views/TeacherSetupView';
 import { ClassroomView } from './views/ClassroomView';
 import { PastConversationsModal } from './components/PastConversationsModal';
+import { ToastContainer } from './components/ToastContainer';
+import styles from './App.module.css';
 import './styles/index.css';
 
 export default function App() {
@@ -101,26 +103,25 @@ export default function App() {
       />
 
       {error ? (
-        <div style={{ margin: 'auto', textAlign: 'center', padding: '40px 20px', maxWidth: '520px' }}>
-          <div style={{ fontSize: '3rem', marginBottom: '16px' }}>⚠️</div>
-          <h2 style={{ fontSize: '1.4rem', marginBottom: '8px' }}>Connection Error</h2>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem', lineHeight: 1.5 }}>
+        <div className={styles.errorContainer}>
+          <div className={styles.errorIcon}>⚠️</div>
+          <h2 className={styles.errorTitle}>Connection Error</h2>
+          <p className={styles.errorMessage}>
             {error}
           </p>
           <button
             type="button"
-            className="btn-primary"
-            style={{ marginTop: '20px' }}
+            className={`btn-primary ${styles.retryButton}`}
             onClick={() => window.location.reload()}
           >
             Retry Connection
           </button>
         </div>
       ) : isLoading ? (
-        <div style={{ margin: 'auto', textAlign: 'center', padding: '60px 20px' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '16px' }}>🔬</div>
-          <h3 style={{ fontSize: '1.2rem', marginBottom: '8px' }}>Loading Science Classroom...</h3>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingIcon}>🔬</div>
+          <h3 className={styles.loadingTitle}>Loading Science Classroom...</h3>
+          <p className={styles.loadingSubtitle}>
             Initializing curriculum and student models
           </p>
         </div>
@@ -146,6 +147,8 @@ export default function App() {
           onClose={() => setShowPastConversations(false)}
         />
       )}
+
+      <ToastContainer />
     </div>
   );
 }

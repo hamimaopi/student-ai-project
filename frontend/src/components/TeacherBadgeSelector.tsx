@@ -1,5 +1,6 @@
 import React from 'react';
 import { TeacherBadge } from '../types';
+import styles from './TeacherBadgeSelector.module.css';
 
 interface TeacherBadgeOption {
   id: TeacherBadge;
@@ -22,7 +23,7 @@ interface Props {
 
 export const TeacherBadgeSelector: React.FC<Props> = ({ selectedBadge, onSelect }) => {
   return (
-    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+    <div className={styles.container}>
       {BADGES.map((b) => {
         const isSelected = selectedBadge === b.id;
         return (
@@ -31,35 +32,14 @@ export const TeacherBadgeSelector: React.FC<Props> = ({ selectedBadge, onSelect 
             id={`badge-select-${b.id}`}
             type="button"
             onClick={() => onSelect(b.id)}
-            style={{
-              flex: '1 1 calc(50% - 6px)',
-              minWidth: '130px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              padding: '12px 14px',
-              borderRadius: 'var(--radius-lg)',
-              background: isSelected
-                ? 'var(--gradient-brand-subtle)'
-                : 'var(--bg-surface)',
-              border: isSelected
-                ? '1.5px solid var(--accent-cyan)'
-                : '1px solid var(--glass-border)',
-              boxShadow: isSelected
-                ? '0 0 16px rgba(56, 189, 248, 0.25)'
-                : 'none',
-              cursor: 'pointer',
-              color: 'var(--text-main)',
-              transition: 'all var(--transition-fast)',
-              textAlign: 'left'
-            }}
+            className={`${styles.badgeButton} ${isSelected ? styles.badgeButtonSelected : ''}`}
           >
-            <span style={{ fontSize: '1.8rem', lineHeight: 1 }}>{b.emoji}</span>
+            <span className={styles.badgeEmoji}>{b.emoji}</span>
             <div>
-              <div style={{ fontWeight: 600, fontSize: '0.9rem', color: isSelected ? 'var(--accent-cyan)' : 'var(--text-main)' }}>
+              <div className={`${styles.badgeName} ${isSelected ? styles.badgeNameSelected : ''}`}>
                 {b.name}
               </div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
+              <div className={styles.badgeDesc}>
                 {b.description}
               </div>
             </div>

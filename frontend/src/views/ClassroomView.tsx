@@ -7,6 +7,7 @@ import { ChatMessages } from '../components/ChatMessages';
 import { ChatInput } from '../components/ChatInput';
 import { DebriefModal } from '../components/DebriefModal';
 import { formatStopwatch, formatDuration } from '../utils/formatters';
+import styles from './ClassroomView.module.css';
 
 interface Props {
   session: SessionData;
@@ -159,58 +160,24 @@ export const ClassroomView: React.FC<Props> = ({
   return (
     <div
       id="classroom-view"
-      style={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        height: 'calc(100vh - 68px)',
-        overflow: 'hidden'
-      }}
+      className={styles.container}
     >
       {error && (
-        <div
-          style={{
-            background: 'rgba(244, 63, 94, 0.2)',
-            borderBottom: '1px solid rgba(244, 63, 94, 0.4)',
-            color: 'var(--state-confidently-wrong)',
-            padding: '8px 24px',
-            fontSize: '0.84rem',
-            textAlign: 'center'
-          }}
-        >
+        <div className={styles.errorBanner}>
           {error}
         </div>
       )}
 
       {/* Main 2-Column Classroom Layout */}
-      <div
-        className="container-max"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '12px 20px 4px'
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: session.endedAt ? '#64748b' : '#10b981', display: 'inline-block' }}></span>
+      <div className={`container-max ${styles.headerBar}`}>
+        <div className={styles.headerMeta}>
+          <div className={styles.statusIndicator}>
+            <span
+              className={`${styles.statusDot} ${session.endedAt ? styles.statusDotEnded : styles.statusDotLive}`}
+            />
             <span>{session.endedAt ? 'Completed Session' : 'Live Teaching Session'} · Topic: <strong>{session.scenarioTitle}</strong></span>
           </div>
-          <span
-            style={{
-              fontSize: '0.74rem',
-              fontWeight: 700,
-              padding: '2px 9px',
-              borderRadius: 'var(--radius-full)',
-              background: 'rgba(56, 189, 248, 0.12)',
-              border: '1px solid rgba(56, 189, 248, 0.25)',
-              color: 'var(--accent-cyan)',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '4px'
-            }}
-          >
+          <span className={styles.timerBadge}>
             <span>⏱️</span>
             <span>{session.endedAt ? `Total: ${formatDuration(session.startedAt, session.endedAt)}` : formatStopwatch(elapsedSeconds)}</span>
           </span>
@@ -218,36 +185,16 @@ export const ClassroomView: React.FC<Props> = ({
         <button
           id="btn-end-lesson-top"
           type="button"
-          className="btn-secondary"
+          className={`btn-secondary ${styles.endButton}`}
           onClick={handleEndSessionClick}
-          style={{ fontSize: '0.78rem', padding: '5px 12px' }}
         >
           End Lesson & View Debrief 📊
         </button>
       </div>
 
-      <div
-        className="container-max"
-        style={{
-          flex: 1,
-          display: 'grid',
-          gridTemplateColumns: 'minmax(320px, 380px) 1fr',
-          gap: '20px',
-          padding: '8px 20px 16px',
-          height: '100%',
-          overflow: 'hidden'
-        }}
-      >
+      <div className={`container-max ${styles.classroomGrid}`}>
         {/* Left Column: Student Profile & Scenario */}
-        <aside
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            overflowY: 'auto',
-            paddingRight: '4px',
-            gap: '16px'
-          }}
-        >
+        <aside className={styles.leftColumn}>
           <StudentProfileCard
             participant={participant}
             isThinking={isThinking}
@@ -260,15 +207,7 @@ export const ClassroomView: React.FC<Props> = ({
         </aside>
 
         {/* Right Column: Active Chat Area */}
-        <main
-          className="glass-panel"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100%',
-            overflow: 'hidden'
-          }}
-        >
+        <main className={`glass-panel ${styles.chatColumn}`}>
           <ChatMessages
             messages={messages}
             isThinking={isThinking}
