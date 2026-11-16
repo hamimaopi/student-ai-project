@@ -8,7 +8,7 @@ interface Props {
 
 export const ThinkingIndicator: React.FC<Props> = ({
   studentName = 'Sue',
-  avatarUrl = '/images/avatar_sue.jpg'
+  avatarUrl = '/images/avatar_sue.png'
 }) => {
   return (
     <div id="thinking-indicator" className={`animate-slide-up ${styles.container}`}>

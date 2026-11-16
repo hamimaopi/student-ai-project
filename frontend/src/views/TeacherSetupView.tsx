@@ -172,7 +172,7 @@ export const TeacherSetupView: React.FC<Props> = ({
                       {/* Student on roster preview */}
                       <div className={styles.studentCard}>
                         <img
-                          src={student?.avatarUrl || '/images/avatar_sue.jpg'}
+                          src={student?.avatarUrl || '/images/avatar_sue.png'}
                           alt={student?.name || 'Sue'}
                           className={styles.studentAvatar}
                         />
@@ -184,9 +184,6 @@ export const TeacherSetupView: React.FC<Props> = ({
                             <span className={styles.studentGradeBadge}>
                               {student?.gradeLevel || '8th Grade'}
                             </span>
-                          </div>
-                          <div className={styles.studentPersonality}>
-                            {student?.personality || 'Thoughtful & hesitant student exploring disease transmission.'}
                           </div>
                         </div>
                       </div>
