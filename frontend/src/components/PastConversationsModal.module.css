@@ -1,0 +1,548 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.dialog {
+  max-width: 1100px;
+  width: 100%;
+  height: 88vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-secondary);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  color: var(--text-main);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.header {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.headerTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.headerIcon {
+  font-size: 1.4rem;
+}
+
+.title {
+  font-size: 1.25rem;
+  margin: 0;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.closeBtn {
+  padding: 6px 14px;
+  font-size: 0.82rem;
+}
+
+.errorBanner {
+  padding: 10px 24px;
+  background: rgba(244, 63, 94, 0.2);
+  border-bottom: 1px solid rgba(244, 63, 94, 0.4);
+  color: var(--state-confidently-wrong);
+  font-size: 0.84rem;
+}
+
+.filterToolbar {
+  padding: 14px 24px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.filterItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filterLabelCyan {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+}
+
+.filterLabelPurple {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent-purple);
+  text-transform: uppercase;
+}
+
+.filterSelect {
+  background: var(--bg-secondary);
+  color: var(--text-main);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.filterCount {
+  margin-left: auto;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.mainGrid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  overflow: hidden;
+}
+
+.sessionListCol {
+  border-right: 1px solid var(--glass-border);
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.emptyPlaceholder {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+
+.emptyIcon {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.emptyText {
+  font-size: 0.86rem;
+  margin: 0;
+}
+
+.sessionCard {
+  padding: 12px 14px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-surface);
+  border: 1px solid var(--glass-border);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.sessionCard:hover {
+  background: var(--bg-surface-hover);
+  border-color: var(--glass-border-hover);
+}
+
+.sessionCardSelected {
+  background: var(--gradient-brand-subtle);
+  border: 1px solid var(--accent-cyan);
+}
+
+.sessionCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.teacherBadgeName {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+.sessionDate {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+
+.sessionTopic {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.sessionCardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stateBadgePill {
+  font-size: 0.68rem;
+  padding: 2px 8px;
+}
+
+.sessionMetrics {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.transcriptCol {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+.activeSessionInfoBar {
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--glass-border);
+  background: var(--bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.activeSessionMeta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.activeSessionTitle {
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.activeSessionTeacher {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-left: 10px;
+}
+
+.tabsGroup {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.tabButton {
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--glass-border);
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+}
+
+.tabButtonActiveMessages {
+  border: 1px solid var(--accent-cyan);
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--accent-cyan);
+}
+
+.tabButtonActiveDebrief {
+  border: 1px solid var(--accent-purple);
+  background: rgba(168, 85, 247, 0.15);
+  color: var(--accent-purple);
+}
+
+.debriefView {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.debriefSection {
+  background: var(--bg-surface);
+  padding: 16px 20px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+}
+
+.debriefSectionTitleCyan {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.debriefSectionTitlePurple {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--accent-purple);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.debriefText {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.strategyBar {
+  height: 12px;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  display: flex;
+  background: rgba(255, 255, 255, 0.1);
+  margin-bottom: 10px;
+}
+
+.strategyBarProbing {
+  background: #38bdf8;
+  width: var(--probing-width, 50%);
+  transition: width 600ms ease;
+}
+
+.strategyBarDiscovery {
+  background: #a855f7;
+  width: var(--discovery-width, 35%);
+  transition: width 600ms ease;
+}
+
+.strategyBarTelling {
+  background: #f59e0b;
+  width: var(--telling-width, 15%);
+  transition: width 600ms ease;
+}
+
+.strategyLegend {
+  display: flex;
+  gap: 16px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+
+.breakthroughBox {
+  background: rgba(56, 189, 248, 0.1);
+  padding: 14px 18px;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
+.breakthroughTitle {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.strengthsGrowthGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.strengthsCard {
+  background: rgba(16, 185, 129, 0.08);
+  padding: 14px 16px;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.growthCard {
+  background: rgba(234, 179, 8, 0.08);
+  padding: 14px 16px;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(234, 179, 8, 0.2);
+}
+
+.cardTitleGreen {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #10b981;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.cardTitleYellow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fbbf24;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.list {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.dialogueStream {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.msgRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  max-width: 82%;
+}
+
+.msgRowTeacher {
+  flex-direction: row-reverse;
+  align-self: flex-end;
+}
+
+.msgRowStudent {
+  flex-direction: row;
+  align-self: flex-start;
+}
+
+.teacherAvatar {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  background: var(--gradient-brand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.studentAvatar {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+}
+
+.msgHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.msgHeaderTeacher {
+  justify-content: flex-end;
+}
+
+.msgHeaderStudent {
+  justify-content: flex-start;
+}
+
+.senderName {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.turnBadge {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+}
+
+.timeBadge {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.timeIcon {
+  opacity: 0.65;
+}
+
+.bubble {
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--text-main);
+}
+
+.bubbleTeacher {
+  background: var(--gradient-brand-subtle);
+  border: 1px solid var(--accent-indigo);
+  border-radius: 16px 16px 4px 16px;
+}
+
+.bubbleStudent {
+  background: var(--bg-surface);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px 16px 16px 4px;
+}
+
+.concludedSummaryCard {
+  margin: 16px auto 8px;
+  width: 100%;
+  max-width: 480px;
+  background: var(--bg-surface);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 14px 20px;
+  text-align: center;
+}
+
+.concludedTitle {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 4px;
+}
+
+.concludedDuration {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--accent-cyan);
+}
+
+.concludedSubtext {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.noSessionSelected {
+  margin: auto;
+  text-align: center;
+  color: var(--text-muted);
+}

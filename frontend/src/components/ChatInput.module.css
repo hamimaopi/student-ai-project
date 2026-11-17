@@ -3,15 +3,79 @@
   background: var(--glass-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  padding: 16px 24px 20px;
+  padding: 14px 24px 18px;
   transition: background-color var(--transition-normal), border-color var(--transition-normal);
+}
+
+.callOnToolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.callOnToolbar::-webkit-scrollbar {
+  display: none;
+}
+
+.callOnLabel {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.callOnChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-surface);
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+}
+
+.callOnChip:hover:not(:disabled) {
+  background: var(--bg-surface-hover);
+  color: var(--text-main);
+  border-color: var(--glass-border-hover);
+}
+
+.callOnChipActive {
+  background: rgba(56, 189, 248, 0.16);
+  color: var(--accent-cyan);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+}
+
+.callOnChipAvatar {
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+}
+
+.callOnStateDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
 }
 
 .chipsBar {
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding-bottom: 10px;
+  padding-bottom: 8px;
   margin-bottom: 8px;
   scrollbar-width: none;
   align-items: center;
@@ -60,6 +124,78 @@
 .starterChip:disabled {
   cursor: not-allowed;
   opacity: 0.55;
+}
+
+.tag_OPEN {
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--accent-cyan);
+  border: 1px solid var(--accent-cyan);
+}
+
+.tag_CONFIDENTLY_WRONG {
+  background: var(--state-confidently-wrong-bg);
+  color: var(--state-confidently-wrong);
+  border: 1px solid var(--state-confidently-wrong);
+}
+
+.tag_DEFENSIVE {
+  background: var(--state-defensive-bg);
+  color: var(--state-defensive);
+  border: 1px solid var(--state-defensive);
+}
+
+.tag_CONFUSED {
+  background: var(--state-confused-bg);
+  color: var(--state-confused);
+  border: 1px solid var(--state-confused);
+}
+
+.tag_TENTATIVELY_CORRECT {
+  background: var(--state-tentatively-correct-bg);
+  color: var(--state-tentatively-correct);
+  border: 1px solid var(--state-tentatively-correct);
+}
+
+.tag_UNDERSTANDING {
+  background: var(--state-understanding-bg);
+  color: var(--state-understanding);
+  border: 1px solid var(--state-understanding);
+}
+
+.chip_OPEN:hover:not(:disabled) {
+  background: rgba(56, 189, 248, 0.15);
+  color: var(--accent-cyan);
+  border-color: var(--accent-cyan);
+}
+
+.chip_CONFIDENTLY_WRONG:hover:not(:disabled) {
+  background: var(--state-confidently-wrong-bg);
+  color: var(--state-confidently-wrong);
+  border-color: var(--state-confidently-wrong);
+}
+
+.chip_DEFENSIVE:hover:not(:disabled) {
+  background: var(--state-defensive-bg);
+  color: var(--state-defensive);
+  border-color: var(--state-defensive);
+}
+
+.chip_CONFUSED:hover:not(:disabled) {
+  background: var(--state-confused-bg);
+  color: var(--state-confused);
+  border-color: var(--state-confused);
+}
+
+.chip_TENTATIVELY_CORRECT:hover:not(:disabled) {
+  background: var(--state-tentatively-correct-bg);
+  color: var(--state-tentatively-correct);
+  border-color: var(--state-tentatively-correct);
+}
+
+.chip_UNDERSTANDING:hover:not(:disabled) {
+  background: var(--state-understanding-bg);
+  color: var(--state-understanding);
+  border-color: var(--state-understanding);
 }
 
 .form {

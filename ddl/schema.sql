@@ -38,8 +38,10 @@ CREATE TABLE student (
     name          VARCHAR(50)  NOT NULL,
     personality   TEXT         NOT NULL,
     grade_level   VARCHAR(20)  NOT NULL, -- e.g., '8th Grade', '6th Grade'
-    avatar_url    VARCHAR(255),          -- e.g., '/images/avatar_sue.jpg'
-    created_at    TIMESTAMPTZ  NOT NULL DEFAULT NOW()
+    avatar_url            VARCHAR(255),          -- e.g., '/images/avatar_sue.png'
+    participation_weight  INT NOT NULL DEFAULT 40,
+    speaking_style        TEXT,
+    created_at            TIMESTAMPTZ  NOT NULL DEFAULT NOW()
 );
 
 -- ----------------------------------------------------------------------------
@@ -79,6 +81,8 @@ CREATE TABLE student_mental_model (
     wrong_belief        TEXT NOT NULL,
     why_it_feels_right  TEXT NOT NULL,
     defenses            JSONB NOT NULL DEFAULT '[]',
+    initial_state       VARCHAR(30) NOT NULL DEFAULT 'CONFIDENTLY_WRONG',
+    target_concept      TEXT,
     created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT uq_scenario_student_mental_model UNIQUE (scenario_id, student_id)
 );
@@ -109,6 +113,8 @@ CREATE TABLE session_participant (
     mental_model_id   UUID REFERENCES student_mental_model(id) ON DELETE SET NULL,
     current_state     VARCHAR(30) NOT NULL DEFAULT 'CONFIDENTLY_WRONG',
     turns_in_state    INT NOT NULL DEFAULT 0,
+    turns_spoken      INT NOT NULL DEFAULT 0,
+    last_spoke_at_turn INT,
     state_summary     TEXT,
     CONSTRAINT uq_session_student UNIQUE (session_id, student_id),
     CONSTRAINT chk_participant_state CHECK (
@@ -123,10 +129,14 @@ CREATE TABLE session_participant (
 CREATE TABLE message (
     id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     session_id    UUID NOT NULL REFERENCES session(id) ON DELETE CASCADE,
-    sender_type   VARCHAR(20) NOT NULL, -- 'TEACHER' or 'STUDENT'
-    student_id    UUID REFERENCES student(id) ON DELETE SET NULL, -- NULL if TEACHER
-    content       TEXT NOT NULL,
-    turn_number   INT NOT NULL,
+    sender_type            VARCHAR(20) NOT NULL, -- 'TEACHER' or 'STUDENT'
+    student_id             UUID REFERENCES student(id) ON DELETE SET NULL, -- NULL if TEACHER
+    target_student_id      UUID REFERENCES student(id) ON DELETE SET NULL,
+    referenced_student_id  UUID REFERENCES student(id) ON DELETE SET NULL,
+    routing_reason         VARCHAR(50),
+    student_state_snapshot VARCHAR(30),
+    content                TEXT NOT NULL,
+    turn_number            INT NOT NULL,
     created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT chk_message_sender CHECK (
         (sender_type = 'TEACHER' AND student_id IS NULL) OR

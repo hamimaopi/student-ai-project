@@ -1,6 +1,7 @@
 package com.studentai.project.message;
 
 import com.studentai.project.session.Session;
+import com.studentai.project.statemachine.StudentState;
 import com.studentai.project.student.Student;
 import jakarta.persistence.*;
 import lombok.*;
@@ -33,6 +34,21 @@ public class Message {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id")
     private Student student;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "target_student_id")
+    private Student targetStudent;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "referenced_student_id")
+    private Student referencedStudent;
+
+    @Column(name = "routing_reason", length = 50)
+    private String routingReason;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "student_state_snapshot", length = 30)
+    private StudentState studentStateSnapshot;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;

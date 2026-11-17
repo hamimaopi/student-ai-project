@@ -45,6 +45,13 @@ public class SessionParticipant {
     @Builder.Default
     private int turnsInState = 0;
 
+    @Column(name = "turns_spoken", nullable = false)
+    @Builder.Default
+    private int turnsSpoken = 0;
+
+    @Column(name = "last_spoke_at_turn")
+    private Integer lastSpokeAtTurn;
+
     @Column(name = "state_summary", columnDefinition = "TEXT")
     private String stateSummary;
 
@@ -54,5 +61,10 @@ public class SessionParticipant {
 
     public void resetTurnsInState() {
         this.turnsInState = 0;
+    }
+
+    public void recordTurnSpoken(int turnNumber) {
+        this.turnsSpoken++;
+        this.lastSpokeAtTurn = turnNumber;
     }
 }

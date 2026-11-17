@@ -12,7 +12,7 @@
 }
 
 .modalCard {
-  max-width: 680px;
+  max-width: 840px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
@@ -20,6 +20,7 @@
   background: var(--bg-secondary);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
+  border-radius: var(--radius-xl);
 }
 
 .modalCardMastery {
@@ -29,7 +30,7 @@
 
 .header {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 
 .headerIcon {
@@ -38,23 +39,27 @@
 }
 
 .title {
-  font-size: 1.7rem;
+  font-size: 1.75rem;
   margin: 0 0 8px;
   font-weight: 800;
+  letter-spacing: -0.02em;
 }
 
 .subtitle {
   color: var(--text-muted);
   font-size: 0.94rem;
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.55;
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .statsGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 
 .statCard {
@@ -95,12 +100,259 @@
   margin-top: 2px;
 }
 
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.sectionTitle {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.sectionSubtitle {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+/* Student Trajectory Cards */
+.trajectoriesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.trajectoryCard {
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.trajectoryCardMastery {
+  border-color: rgba(16, 185, 129, 0.4);
+  background: rgba(16, 185, 129, 0.04);
+}
+
+.studentHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.studentAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--glass-border);
+  flex-shrink: 0;
+}
+
+.studentMeta {
+  flex: 1;
+  min-width: 0;
+}
+
+.studentName {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
+.studentPersonality {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.journeyRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.journeyArrow {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  font-weight: 700;
+}
+
+.trajectoryMetrics {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.72rem;
+}
+
+.turnsTag {
+  font-weight: 600;
+  color: var(--accent-cyan);
+}
+
+.masteryTag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.masteryTagAchieved {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.masteryTagProgress {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
+.studentBreakthrough {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  font-style: italic;
+  background: rgba(0, 0, 0, 0.2);
+  border-left: 2px solid var(--accent-cyan);
+  padding: 8px 10px;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin-top: auto;
+}
+
+/* Attention Equity Card */
+.equityCard {
+  background: var(--bg-surface);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  border: 1px solid var(--glass-border);
+  margin-bottom: 22px;
+}
+
+.equityHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.equityTitle {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.equitySubtitle {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.stackedBarEquity {
+  height: 16px;
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  display: flex;
+  background: rgba(255, 255, 255, 0.08);
+  margin-bottom: 12px;
+}
+
+.barMarcus {
+  background: linear-gradient(90deg, #38bdf8, #0284c7);
+  transition: width 600ms ease;
+  width: var(--marcus-pct, 33%);
+}
+
+.barLena {
+  background: linear-gradient(90deg, #c084fc, #9333ea);
+  transition: width 600ms ease;
+  width: var(--lena-pct, 33%);
+}
+
+.barSue {
+  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+  transition: width 600ms ease;
+  width: var(--sue-pct, 33%);
+}
+
+.legendDotMarcus {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #38bdf8;
+  flex-shrink: 0;
+}
+
+.legendDotLena {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #c084fc;
+  flex-shrink: 0;
+}
+
+.legendDotSue {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fbbf24;
+  flex-shrink: 0;
+}
+
+.equityAdviceBox {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.22);
+  font-size: 0.83rem;
+  color: var(--text-main);
+  line-height: 1.5;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.equityAdviceIcon {
+  font-size: 1.15rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.equityAdviceText {
+  margin: 0;
+  flex: 1;
+}
+
+/* Teaching Strategy Card */
 .strategyCard {
   background: var(--bg-surface);
   border-radius: var(--radius-lg);
   padding: 16px 20px;
   border: 1px solid var(--glass-border);
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 
 .strategyHeader {
@@ -115,6 +367,7 @@
   font-weight: 700;
   color: var(--accent-cyan);
   text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .strategySummaryText {
@@ -134,16 +387,19 @@
 .barProbing {
   background: linear-gradient(90deg, #38bdf8, #0284c7);
   transition: width 600ms ease;
+  width: var(--probing-width, 33%);
 }
 
 .barDiscovery {
   background: linear-gradient(90deg, #a855f7, #6366f1);
   transition: width 600ms ease;
+  width: var(--discovery-width, 33%);
 }
 
 .barTelling {
   background: linear-gradient(90deg, #f59e0b, #ea580c);
   transition: width 600ms ease;
+  width: var(--telling-width, 33%);
 }
 
 .legendRow {
@@ -157,7 +413,7 @@
 .legendItem {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
 }
 
 .legendDotProbing {
@@ -165,6 +421,7 @@
   height: 8px;
   border-radius: 50%;
   background: #38bdf8;
+  flex-shrink: 0;
 }
 
 .legendDotDiscovery {
@@ -172,6 +429,7 @@
   height: 8px;
   border-radius: 50%;
   background: #a855f7;
+  flex-shrink: 0;
 }
 
 .legendDotTelling {
@@ -179,14 +437,16 @@
   height: 8px;
   border-radius: 50%;
   background: #f59e0b;
+  flex-shrink: 0;
 }
 
+/* Breakthrough Card */
 .breakthroughCard {
   background: rgba(56, 189, 248, 0.1);
   border-radius: var(--radius-lg);
   padding: 14px 18px;
   border: 1px solid rgba(56, 189, 248, 0.25);
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 
 .breakthroughTitle {
@@ -204,16 +464,17 @@
   line-height: 1.5;
 }
 
+/* Strengths & Growth Grid */
 .feedbackGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 16px;
-  margin-bottom: 24px;
+  margin-bottom: 26px;
 }
 
 .strengthsCard {
   background: rgba(16, 185, 129, 0.08);
-  padding: 14px 16px;
+  padding: 16px 18px;
   border-radius: var(--radius-lg);
   border: 1px solid rgba(16, 185, 129, 0.2);
 }
@@ -224,11 +485,12 @@
   color: #10b981;
   text-transform: uppercase;
   margin-bottom: 8px;
+  letter-spacing: 0.04em;
 }
 
 .growthCard {
   background: rgba(234, 179, 8, 0.08);
-  padding: 14px 16px;
+  padding: 16px 18px;
   border-radius: var(--radius-lg);
   border: 1px solid rgba(234, 179, 8, 0.2);
 }
@@ -239,6 +501,7 @@
   color: #fbbf24;
   text-transform: uppercase;
   margin-bottom: 8px;
+  letter-spacing: 0.04em;
 }
 
 .list {
@@ -246,28 +509,31 @@
   padding-left: 18px;
   font-size: 0.82rem;
   color: var(--text-main);
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 .listItem {
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 
 .actionsRow {
   display: flex;
-  gap: 12px;
+  gap: 14px;
   justify-content: center;
 }
 
 .actionBtnReview {
-  padding: 10px 20px;
+  padding: 11px 22px;
 }
 
 .actionBtnRestart {
-  padding: 10px 24px;
+  padding: 11px 26px;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+  .trajectoriesGrid {
+    grid-template-columns: 1fr;
+  }
   .statsGrid {
     grid-template-columns: 1fr;
   }

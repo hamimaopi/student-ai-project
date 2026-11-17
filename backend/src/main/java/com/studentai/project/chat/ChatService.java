@@ -4,6 +4,7 @@ import com.studentai.project.ai.PromptBuilder;
 import com.studentai.project.ai.StudentResponseGenerator;
 import com.studentai.project.ai.TeacherMoveEvaluation;
 import com.studentai.project.ai.TransitionEvaluator;
+import com.studentai.project.chat.dto.ArbitrationResult;
 import com.studentai.project.chat.dto.ChatSendResponse;
 import com.studentai.project.classroom.Scenario;
 import com.studentai.project.exception.ResourceNotFoundException;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -41,6 +43,7 @@ public class ChatService {
     private final StateTransitionEngine stateTransitionEngine;
     private final PromptBuilder promptBuilder;
     private final StudentResponseGenerator studentResponseGenerator;
+    private final ClassroomDiscourseArbiter discourseArbiter;
 
     public ChatSendResponse handleTeacherMessage(SendMessageRequest request) {
         // 1. Load Session
@@ -51,28 +54,36 @@ public class ChatService {
             throw new SessionStateConflictException("Cannot send message to an ended session: " + session.getId());
         }
 
-        // 2. Identify Target Participant
+        // 2. Identify All Participants & Determine Last Student Speaker
         List<SessionParticipant> participants = participantRepository.findBySessionId(session.getId());
         if (participants.isEmpty()) {
             throw new SessionStateConflictException("No participants found in session: " + session.getId());
         }
 
-        SessionParticipant participant;
-        if (request.getTargetStudentId() != null) {
-            participant = participants.stream()
-                    .filter(p -> p.getStudent().getId().equals(request.getTargetStudentId()))
-                    .findFirst()
-                    .orElseThrow(() -> new ResourceNotFoundException("Student not in session: " + request.getTargetStudentId()));
-        } else {
-            participant = participants.get(0);
-        }
+        UUID lastSpeakerStudentId = messageRepository
+                .findFirstBySessionIdAndSenderTypeOrderByTurnNumberDesc(session.getId(), SenderType.STUDENT)
+                .map(m -> m.getStudent() != null ? m.getStudent().getId() : null)
+                .orElse(null);
 
-        Student student = participant.getStudent();
+        // 3. Discourse Arbitration
+        ArbitrationResult arbitration = discourseArbiter.arbitrate(
+                request.getContent(),
+                request.getTargetStudentId(),
+                participants,
+                lastSpeakerStudentId
+        );
+
+        SessionParticipant targetParticipant = arbitration.getTargetParticipant();
+        Student targetStudent = targetParticipant.getStudent();
+        SessionParticipant referencedParticipant = arbitration.getReferencedParticipant();
+        Student referencedStudent = referencedParticipant != null ? referencedParticipant.getStudent() : null;
+        String routingReason = arbitration.getRoutingReason();
+
         Scenario scenario = session.getScenario();
-        StudentMentalModel mentalModel = participant.getMentalModel();
+        StudentMentalModel mentalModel = targetParticipant.getMentalModel();
         String wrongBelief = mentalModel != null ? mentalModel.getWrongBelief() : "Conflates sequence with causation.";
 
-        // 3. Save Teacher Message
+        // 4. Save Teacher Message
         int maxTurn = messageRepository.findMaxTurnNumberBySessionId(session.getId());
         int teacherTurnNumber = maxTurn + 1;
 
@@ -80,101 +91,115 @@ public class ChatService {
                 .session(session)
                 .senderType(SenderType.TEACHER)
                 .student(null)
+                .targetStudent(targetStudent)
+                .referencedStudent(referencedStudent)
+                .routingReason(routingReason)
                 .content(request.getContent().trim())
                 .turnNumber(teacherTurnNumber)
                 .build();
         messageRepository.save(teacherMessage);
 
-        // 4. Evaluate Teacher Move
+        // 5. Evaluate Teacher Move for Target Student
         TeacherMoveEvaluation evaluation = transitionEvaluator.evaluate(
                 scenario.getDescription(),
                 wrongBelief,
-                participant.getCurrentState(),
+                targetParticipant.getCurrentState(),
                 request.getContent()
         );
 
-        // 5. Compute State Machine Transition
+        // 6. Compute State Machine Transition for Target Student
         StateTransitionEngine.TransitionResult transition = stateTransitionEngine.computeNextState(
-                participant.getCurrentState(),
+                targetParticipant.getCurrentState(),
                 evaluation.getStrategy(),
                 evaluation.getRecommendation(),
-                participant.getTurnsInState()
+                targetParticipant.getTurnsInState()
         );
 
-        log.info("Teacher message evaluated: strategy={}, rec={}, nextState={}, changed={}, reason='{}'",
+        log.info("Teacher move evaluated for student={}: strategy={}, rec={}, nextState={}, changed={}, reason='{}'",
+                targetStudent.getName(),
                 evaluation.getStrategy(), evaluation.getRecommendation(),
                 transition.getNextState(), transition.isStateChanged(), transition.getReason());
 
-        // 6. Update Participant State
+        // 7. Update Target Participant State & Spoken Metrics
+        int studentTurnNumber = teacherTurnNumber + 1;
         if (transition.isStateChanged()) {
-            participant.setCurrentState(transition.getNextState());
-            participant.resetTurnsInState();
+            targetParticipant.setCurrentState(transition.getNextState());
+            targetParticipant.resetTurnsInState();
         } else {
-            participant.incrementTurnsInState();
+            targetParticipant.incrementTurnsInState();
         }
 
-        String updatedSummary = (participant.getStateSummary() != null ? participant.getStateSummary() + " " : "")
+        String updatedSummary = (targetParticipant.getStateSummary() != null ? targetParticipant.getStateSummary() + " " : "")
                 + evaluation.getTurnSummary();
-        participant.setStateSummary(updatedSummary.trim());
-        SessionParticipant savedParticipant = participantRepository.save(participant);
+        targetParticipant.setStateSummary(updatedSummary.trim());
+        targetParticipant.recordTurnSpoken(studentTurnNumber);
+        SessionParticipant savedParticipant = participantRepository.save(targetParticipant);
 
-        // 7. Build Fresh Prompt & Generate Student Response
+        // 8. Build Multi-Student History & Prompt, then Generate Response
         List<Message> history = messageRepository.findBySessionIdOrderByTurnNumberAsc(session.getId());
         String systemPrompt = promptBuilder.buildSystemPrompt(
-                student,
+                targetStudent,
                 scenario,
                 mentalModel,
                 savedParticipant.getCurrentState(),
                 savedParticipant.getTurnsInState(),
-                savedParticipant.getStateSummary()
+                savedParticipant.getStateSummary(),
+                participants,
+                arbitration.getReferencedPeerName()
         );
-        String conversationHistory = promptBuilder.buildConversationHistory(history, student.getName());
+        String conversationHistory = promptBuilder.buildConversationHistory(history, targetStudent.getName());
 
         String studentReplyText = studentResponseGenerator.generateResponse(
                 systemPrompt,
                 conversationHistory,
                 request.getContent(),
-                student.getName()
+                targetStudent.getName()
         );
 
-        // 8. Save Student Message
-        int studentTurnNumber = teacherTurnNumber + 1;
+        // 9. Save Student Message
         Message studentMessage = Message.builder()
                 .session(session)
                 .senderType(SenderType.STUDENT)
-                .student(student)
+                .student(targetStudent)
+                .targetStudent(targetStudent)
+                .referencedStudent(referencedStudent)
+                .routingReason(routingReason)
+                .studentStateSnapshot(savedParticipant.getCurrentState())
                 .content(studentReplyText)
                 .turnNumber(studentTurnNumber)
                 .build();
         Message savedStudentMessage = messageRepository.save(studentMessage);
 
-        // 9. Return Response
+        // 10. Assemble Response DTO
         MessageResponse replyDto = MessageResponse.builder()
                 .id(savedStudentMessage.getId())
                 .sessionId(session.getId())
                 .senderType(SenderType.STUDENT)
-                .studentId(student.getId())
-                .senderName(student.getName())
-                .avatarUrl(student.getAvatarUrl() != null ? student.getAvatarUrl() : "/images/avatar_sue.jpg")
+                .studentId(targetStudent.getId())
+                .targetStudentId(targetStudent.getId())
+                .referencedStudentId(referencedStudent != null ? referencedStudent.getId() : null)
+                .routingReason(routingReason)
+                .studentStateSnapshot(savedParticipant.getCurrentState())
+                .senderName(targetStudent.getName())
+                .avatarUrl(targetStudent.getAvatarUrl() != null ? targetStudent.getAvatarUrl() : "/images/avatar_sue.png")
                 .content(savedStudentMessage.getContent())
                 .turnNumber(savedStudentMessage.getTurnNumber())
                 .createdAt(savedStudentMessage.getCreatedAt())
                 .build();
 
-        SessionParticipantResponse participantDto = SessionParticipantResponse.builder()
-                .id(savedParticipant.getId())
-                .studentId(student.getId())
-                .studentName(student.getName())
-                .avatarUrl(student.getAvatarUrl())
-                .personality(student.getPersonality())
-                .currentState(savedParticipant.getCurrentState())
-                .turnsInState(savedParticipant.getTurnsInState())
-                .stateSummary(savedParticipant.getStateSummary())
-                .build();
+        SessionParticipantResponse participantDto = SessionParticipantResponse.from(savedParticipant);
+
+        List<SessionParticipantResponse> allParticipants = participants.stream()
+                .map(p -> p.getId().equals(savedParticipant.getId()) ? savedParticipant : p)
+                .map(SessionParticipantResponse::from)
+                .toList();
 
         return ChatSendResponse.builder()
                 .reply(replyDto)
                 .participantState(participantDto)
+                .allParticipants(allParticipants)
+                .routedStudentName(targetStudent.getName())
+                .routingReason(routingReason)
                 .build();
     }
 }

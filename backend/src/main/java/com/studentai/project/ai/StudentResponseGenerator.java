@@ -63,13 +63,19 @@ public class StudentResponseGenerator {
             cleaned = cleaned.substring(1, cleaned.length() - 1).trim();
         }
 
-        // Strip prefixes like "Sue: " or "Student: "
-        String prefix1 = studentName + ":";
-        String prefix2 = "Student:";
-        if (cleaned.toLowerCase().startsWith(prefix1.toLowerCase())) {
-            cleaned = cleaned.substring(prefix1.length()).trim();
-        } else if (cleaned.toLowerCase().startsWith(prefix2.toLowerCase())) {
-            cleaned = cleaned.substring(prefix2.length()).trim();
+        // Strip prefixes like "Sue: ", "Marcus: ", "Lena: ", or "Student: "
+        List<String> prefixes = List.of(
+                studentName + ":",
+                "Student:",
+                "Marcus:",
+                "Lena:",
+                "Sue:"
+        );
+        for (String p : prefixes) {
+            if (cleaned.toLowerCase().startsWith(p.toLowerCase())) {
+                cleaned = cleaned.substring(p.length()).trim();
+                break;
+            }
         }
 
         return cleaned;

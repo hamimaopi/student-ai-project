@@ -87,13 +87,18 @@ public class SessionService {
                     .findByScenarioIdAndStudentId(scenario.getId(), student.getId())
                     .orElse(null);
 
+            StudentState initialState = (mentalModel != null && mentalModel.getInitialState() != null)
+                    ? mentalModel.getInitialState()
+                    : StudentState.CONFIDENTLY_WRONG;
+
             SessionParticipant participant = SessionParticipant.builder()
                     .session(savedSession)
                     .student(student)
                     .mentalModel(mentalModel)
-                    .currentState(StudentState.CONFIDENTLY_WRONG)
+                    .currentState(initialState)
                     .turnsInState(0)
-                    .stateSummary("Session started with initial misconception.")
+                    .turnsSpoken(0)
+                    .stateSummary("Session started with initial mental model: " + initialState.name() + ".")
                     .build();
 
             savedSession.addParticipant(participant);
@@ -127,19 +132,12 @@ public class SessionService {
 
         if (session.getDebrief() == null) {
             List<Message> messages = messageRepository.findBySessionIdOrderByTurnNumberAsc(session.getId());
-            SessionParticipant participant = session.getParticipants().isEmpty() ? null : session.getParticipants().get(0);
-            StudentState finalState = participant != null ? participant.getCurrentState() : StudentState.CONFIDENTLY_WRONG;
-            String studentName = participant != null ? participant.getStudent().getName() : "Sue";
-            String wrongBelief = participant != null && participant.getMentalModel() != null
-                    ? participant.getMentalModel().getWrongBelief()
-                    : "Believes tiredness caused cold.";
+            List<SessionParticipant> participants = session.getParticipants();
 
             DebriefData debrief = debriefEvaluator.generateDebrief(
                     session.getScenario().getTitle(),
                     session.getScenario().getDescription(),
-                    studentName,
-                    wrongBelief,
-                    finalState,
+                    participants,
                     messages
             );
 
@@ -177,16 +175,7 @@ public class SessionService {
 
     private SessionResponse toSessionResponse(Session session) {
         List<SessionParticipantResponse> participantResponses = session.getParticipants().stream()
-                .map(p -> SessionParticipantResponse.builder()
-                        .id(p.getId())
-                        .studentId(p.getStudent().getId())
-                        .studentName(p.getStudent().getName())
-                        .avatarUrl(p.getStudent().getAvatarUrl())
-                        .personality(p.getStudent().getPersonality())
-                        .currentState(p.getCurrentState())
-                        .turnsInState(p.getTurnsInState())
-                        .stateSummary(p.getStateSummary())
-                        .build())
+                .map(SessionParticipantResponse::from)
                 .toList();
 
         int maxTurn = messageRepository.findMaxTurnNumberBySessionId(session.getId());
@@ -232,7 +221,7 @@ public class SessionService {
             avatarUrl = "/images/badge_" + badge + ".png";
         } else {
             senderName = message.getStudent() != null ? message.getStudent().getName() : "Student";
-            avatarUrl = message.getStudent() != null ? message.getStudent().getAvatarUrl() : "/images/avatar_sue.jpg";
+            avatarUrl = message.getStudent() != null ? message.getStudent().getAvatarUrl() : "/images/avatar_sue.png";
         }
 
         return MessageResponse.builder()
@@ -240,6 +229,10 @@ public class SessionService {
                 .sessionId(message.getSession().getId())
                 .senderType(message.getSenderType())
                 .studentId(message.getStudent() != null ? message.getStudent().getId() : null)
+                .targetStudentId(message.getTargetStudent() != null ? message.getTargetStudent().getId() : null)
+                .referencedStudentId(message.getReferencedStudent() != null ? message.getReferencedStudent().getId() : null)
+                .routingReason(message.getRoutingReason())
+                .studentStateSnapshot(message.getStudentStateSnapshot())
                 .senderName(senderName)
                 .avatarUrl(avatarUrl)
                 .content(message.getContent())

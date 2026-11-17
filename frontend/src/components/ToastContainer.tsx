@@ -53,21 +53,13 @@ export const ToastContainer: React.FC = () => {
           <div
             key={n.id}
             id={`toast-${n.id}`}
-            className={`animate-slide-up ${styles.toastCard}`}
-            style={{
-              background: config.bg,
-              border: `1px solid ${config.border}`,
-              boxShadow: `${config.glow}, 0 10px 24px rgba(0, 0, 0, 0.5)`
-            }}
+            className={`animate-slide-up ${styles.toastCard} ${styles[`toast_${n.type}`] || styles.toast_info}`}
           >
             <span className={styles.toastIcon}>{config.icon}</span>
 
             <div className={styles.toastBody}>
               <div className={styles.toastHeader}>
-                <h5
-                  className={styles.toastTitle}
-                  style={{ color: config.titleColor }}
-                >
+                <h5 className={styles.toastTitle}>
                   {n.title}
                 </h5>
 

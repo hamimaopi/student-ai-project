@@ -1,10 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { StudentState } from '../types';
+import { SessionParticipant, StudentState } from '../types';
 import styles from './ChatInput.module.css';
 
 interface Props {
-  onSendMessage: (content: string) => void;
+  onSendMessage: (content: string, targetStudentId?: string | null) => void;
   disabled: boolean;
+  participants?: SessionParticipant[];
+  selectedStudentId?: string | null;
+  onSelectStudent?: (studentId: string | null) => void;
   studentState?: StudentState;
   studentName?: string;
 }
@@ -16,6 +19,19 @@ interface StateHintConfig {
   bgVar: string;
   starters: string[];
 }
+
+const OPEN_CLASS_HINTS: StateHintConfig = {
+  tag: 'OPEN CLASSROOM INQUIRY',
+  icon: '✨',
+  colorVar: 'var(--accent-cyan)',
+  bgVar: 'rgba(56, 189, 248, 0.15)',
+  starters: [
+    "Why do you think Anthony became sick?",
+    "Does anyone agree that tiredness from basketball caused the cold?",
+    "Could someone catch a cold virus days before noticing symptoms?",
+    "Who remembers where Sam was sitting in class earlier that week?"
+  ]
+};
 
 const STATE_HINTS: Record<StudentState, StateHintConfig> = {
   CONFIDENTLY_WRONG: {
@@ -83,24 +99,34 @@ const STATE_HINTS: Record<StudentState, StateHintConfig> = {
 export const ChatInput: React.FC<Props> = ({
   onSendMessage,
   disabled,
+  participants,
+  selectedStudentId,
+  onSelectStudent,
   studentState = 'CONFIDENTLY_WRONG',
   studentName = 'Sue'
 }) => {
   const [content, setContent] = useState<string>('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const activeHintConfig = STATE_HINTS[studentState] || STATE_HINTS.CONFIDENTLY_WRONG;
+  // Determine active student context
+  const targetParticipant = participants?.find((p) => p.studentId === selectedStudentId);
+  const activeStudentName = targetParticipant ? targetParticipant.studentName : (selectedStudentId ? studentName : null);
+  const activeStudentState = targetParticipant ? targetParticipant.currentState : studentState;
+
+  const activeHintConfig = activeStudentName
+    ? (STATE_HINTS[activeStudentState] || STATE_HINTS.CONFIDENTLY_WRONG)
+    : OPEN_CLASS_HINTS;
 
   useEffect(() => {
     if (!disabled && textareaRef.current) {
       textareaRef.current.focus();
     }
-  }, [disabled]);
+  }, [disabled, selectedStudentId]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim() || disabled) return;
-    onSendMessage(content.trim());
+    onSendMessage(content.trim(), selectedStudentId);
     setContent('');
   };
 
@@ -111,17 +137,61 @@ export const ChatInput: React.FC<Props> = ({
     }
   };
 
+  const placeholderText = disabled
+    ? (activeStudentName ? `${activeStudentName} is reflecting on your question...` : 'A student is reflecting on your question...')
+    : (activeStudentName
+        ? `Ask ${activeStudentName} a question or guide their thinking... (Press Enter to send)`
+        : 'Ask a question to the class or call on a student... (Press Enter to send)');
+
   return (
     <div id="chat-input-wrapper" className={styles.wrapper}>
-      {/* Pedagogical Prompt Chips dynamically updating per student mental model */}
-      <div key={studentState} className={`animate-fade-in ${styles.chipsBar}`}>
+      {/* 1. Teacher Call-On Toolbar */}
+      {participants && participants.length > 0 && (
+        <div id="call-on-toolbar" className={styles.callOnToolbar}>
+          <span className={styles.callOnLabel}>Call on:</span>
+
+          <button
+            id="call-on-auto-chip"
+            type="button"
+            disabled={disabled}
+            onClick={() => onSelectStudent?.(null)}
+            className={`${styles.callOnChip} ${selectedStudentId == null ? styles.callOnChipActive : ''}`}
+            title="Automatically routes based on names in your message or open-class participation"
+          >
+            <span>✨</span>
+            <span>Auto-Route</span>
+          </button>
+
+          {participants.map((p) => {
+            const isSelected = selectedStudentId === p.studentId;
+            return (
+              <button
+                key={p.studentId}
+                id={`call-on-chip-${p.studentName.toLowerCase()}`}
+                type="button"
+                disabled={disabled}
+                onClick={() => onSelectStudent?.(isSelected ? null : p.studentId)}
+                className={`${styles.callOnChip} ${isSelected ? styles.callOnChipActive : ''}`}
+                title={`Target ${p.studentName} directly`}
+              >
+                <img
+                  src={p.avatarUrl || '/images/avatar_sue.png'}
+                  alt={p.studentName}
+                  className={styles.callOnChipAvatar}
+                />
+                <span>{p.studentName}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* 2. Pedagogical Prompt Chips dynamically updating per student mental model */}
+      <div key={selectedStudentId || 'auto'} className={`animate-fade-in ${styles.chipsBar}`}>
         <div
-          className={styles.stateTagPill}
-          style={{
-            background: activeHintConfig.bgVar,
-            color: activeHintConfig.colorVar,
-            border: `1px solid ${activeHintConfig.colorVar}`
-          }}
+          className={`${styles.stateTagPill} ${
+            activeStudentName ? (styles[`tag_${activeStudentState}`] || styles.tag_OPEN) : styles.tag_OPEN
+          }`}
         >
           <span>{activeHintConfig.icon}</span>
           <span>{activeHintConfig.tag}</span>
@@ -136,19 +206,16 @@ export const ChatInput: React.FC<Props> = ({
               setContent(starter);
               textareaRef.current?.focus();
             }}
-            className={styles.starterChip}
-            style={{
-              '--chip-hover-bg': activeHintConfig.bgVar,
-              '--chip-hover-color': activeHintConfig.colorVar,
-              '--chip-hover-border': activeHintConfig.colorVar
-            } as React.CSSProperties}
+            className={`${styles.starterChip} ${
+              activeStudentName ? (styles[`chip_${activeStudentState}`] || styles.chip_OPEN) : styles.chip_OPEN
+            }`}
           >
             {starter}
           </button>
         ))}
       </div>
 
-      {/* Main Form */}
+      {/* 3. Main Form */}
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.inputWrapper}>
           <textarea
@@ -159,7 +226,7 @@ export const ChatInput: React.FC<Props> = ({
             disabled={disabled}
             onChange={(e) => setContent(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={disabled ? `${studentName} is reflecting on your question...` : `Guide ${studentName}'s thinking or ask a question... (Press Enter to send)`}
+            placeholder={placeholderText}
             className={styles.textarea}
           />
         </div>

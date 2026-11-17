@@ -4,6 +4,7 @@ import com.studentai.project.ai.PromptBuilder;
 import com.studentai.project.ai.StudentResponseGenerator;
 import com.studentai.project.ai.TeacherMoveEvaluation;
 import com.studentai.project.ai.TransitionEvaluator;
+import com.studentai.project.chat.dto.ArbitrationResult;
 import com.studentai.project.chat.dto.ChatSendResponse;
 import com.studentai.project.classroom.Classroom;
 import com.studentai.project.exception.ResourceNotFoundException;
@@ -28,6 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -64,6 +66,9 @@ class ChatServiceTest {
 
     @Mock
     private StudentResponseGenerator studentResponseGenerator;
+
+    @Mock
+    private ClassroomDiscourseArbiter discourseArbiter;
 
     @InjectMocks
     private ChatService chatService;
@@ -128,6 +133,7 @@ class ChatServiceTest {
                 .mentalModel(mentalModel)
                 .currentState(StudentState.CONFIDENTLY_WRONG)
                 .turnsInState(0)
+                .turnsSpoken(0)
                 .build();
     }
 
@@ -163,7 +169,15 @@ class ChatServiceTest {
     void testHandleTeacherMessageSuccess() {
         when(sessionRepository.findById(sessionId)).thenReturn(Optional.of(session));
         when(participantRepository.findBySessionId(sessionId)).thenReturn(List.of(participant));
+        when(messageRepository.findFirstBySessionIdAndSenderTypeOrderByTurnNumberDesc(eq(sessionId), eq(SenderType.STUDENT)))
+                .thenReturn(Optional.empty());
         when(messageRepository.findMaxTurnNumberBySessionId(sessionId)).thenReturn(0);
+
+        ArbitrationResult arbitration = ArbitrationResult.builder()
+                .targetParticipant(participant)
+                .routingReason("MANUAL_TEACHER_SELECTION")
+                .build();
+        when(discourseArbiter.arbitrate(any(), any(), any(), any())).thenReturn(arbitration);
 
         TeacherMoveEvaluation evaluation = TeacherMoveEvaluation.builder()
                 .strategy(TeacherStrategy.PROBING)
@@ -185,7 +199,8 @@ class ChatServiceTest {
         when(participantRepository.save(any(SessionParticipant.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         when(messageRepository.findBySessionIdOrderByTurnNumberAsc(sessionId)).thenReturn(List.of());
-        when(promptBuilder.buildSystemPrompt(any(), any(), any(), any(), anyInt(), any())).thenReturn("System prompt");
+        when(promptBuilder.buildSystemPrompt(any(), any(), any(), any(), anyInt(), any(), any(), any()))
+                .thenReturn("System prompt");
         when(promptBuilder.buildConversationHistory(any(), any())).thenReturn("History");
         when(studentResponseGenerator.generateResponse(any(), any(), any(), any())).thenReturn("Wait... maybe viruses don't come from running?");
 
@@ -196,6 +211,10 @@ class ChatServiceTest {
                     .session(m.getSession())
                     .senderType(m.getSenderType())
                     .student(m.getStudent())
+                    .targetStudent(m.getTargetStudent())
+                    .referencedStudent(m.getReferencedStudent())
+                    .routingReason(m.getRoutingReason())
+                    .studentStateSnapshot(m.getStudentStateSnapshot())
                     .content(m.getContent())
                     .turnNumber(m.getTurnNumber())
                     .createdAt(Instant.now())
@@ -219,8 +238,101 @@ class ChatServiceTest {
         assertNotNull(response.getParticipantState());
         assertEquals(StudentState.CONFUSED, response.getParticipantState().getCurrentState());
         assertEquals(0, response.getParticipantState().getTurnsInState());
+        assertEquals(1, response.getParticipantState().getTurnsSpoken());
+
+        assertEquals("Sue", response.getRoutedStudentName());
+        assertEquals("MANUAL_TEACHER_SELECTION", response.getRoutingReason());
+        assertNotNull(response.getAllParticipants());
+        assertEquals(1, response.getAllParticipants().size());
 
         // Verify two messages saved: teacher (turn 1) and student (turn 2)
         verify(messageRepository, times(2)).save(any(Message.class));
+    }
+
+    @Test
+    @DisplayName("Routes turn with peer reference and attributes referencedStudent on messages")
+    void testHandleTeacherMessageWithPeerReferenced() {
+        Student marcusStudent = Student.builder()
+                .id(UUID.randomUUID())
+                .name("Marcus")
+                .gradeLevel("8th grade")
+                .personality("Energetic")
+                .build();
+
+        SessionParticipant marcusParticipant = SessionParticipant.builder()
+                .id(UUID.randomUUID())
+                .session(session)
+                .student(marcusStudent)
+                .currentState(StudentState.CONFIDENTLY_WRONG)
+                .turnsSpoken(1)
+                .build();
+
+        when(sessionRepository.findById(sessionId)).thenReturn(Optional.of(session));
+        when(participantRepository.findBySessionId(sessionId)).thenReturn(List.of(marcusParticipant, participant));
+        when(messageRepository.findFirstBySessionIdAndSenderTypeOrderByTurnNumberDesc(eq(sessionId), eq(SenderType.STUDENT)))
+                .thenReturn(Optional.empty());
+        when(messageRepository.findMaxTurnNumberBySessionId(sessionId)).thenReturn(2);
+
+        ArbitrationResult arbitration = ArbitrationResult.builder()
+                .targetParticipant(participant)
+                .referencedParticipant(marcusParticipant)
+                .referencedPeerName("Marcus")
+                .routingReason("DIRECT_INVITATION_REFERENCING_PEER")
+                .build();
+        when(discourseArbiter.arbitrate(any(), any(), any(), any())).thenReturn(arbitration);
+
+        TeacherMoveEvaluation evaluation = TeacherMoveEvaluation.builder()
+                .strategy(TeacherStrategy.PROBING)
+                .recommendation(TransitionRecommendation.STAY)
+                .addressesMisconception(true)
+                .clarity("CLEAR")
+                .turnSummary("Probing Sue about Marcus's hypothesis.")
+                .build();
+        when(transitionEvaluator.evaluate(any(), any(), any(), any())).thenReturn(evaluation);
+
+        StateTransitionEngine.TransitionResult transition = StateTransitionEngine.TransitionResult.builder()
+                .nextState(StudentState.CONFIDENTLY_WRONG)
+                .stateChanged(false)
+                .reason("Need more exploration.")
+                .build();
+        when(stateTransitionEngine.computeNextState(any(), any(), any(), anyInt())).thenReturn(transition);
+        when(participantRepository.save(any(SessionParticipant.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        when(messageRepository.findBySessionIdOrderByTurnNumberAsc(sessionId)).thenReturn(List.of());
+        when(promptBuilder.buildSystemPrompt(any(), any(), any(), any(), anyInt(), any(), any(), any()))
+                .thenReturn("System prompt");
+        when(promptBuilder.buildConversationHistory(any(), any())).thenReturn("History");
+        when(studentResponseGenerator.generateResponse(any(), any(), any(), any())).thenReturn("I disagree with Marcus because tiredness doesn't create germs.");
+
+        ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
+        when(messageRepository.save(messageCaptor.capture())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        SendMessageRequest request = SendMessageRequest.builder()
+                .sessionId(sessionId)
+                .content("Sue, what do you think about Marcus's idea?")
+                .build();
+
+        ChatSendResponse response = chatService.handleTeacherMessage(request);
+
+        assertNotNull(response);
+        assertEquals("Sue", response.getRoutedStudentName());
+        assertEquals("DIRECT_INVITATION_REFERENCING_PEER", response.getRoutingReason());
+        assertEquals(2, response.getAllParticipants().size());
+
+        List<Message> savedMessages = messageCaptor.getAllValues();
+        assertEquals(2, savedMessages.size());
+
+        Message savedTeacherMsg = savedMessages.get(0);
+        assertEquals(SenderType.TEACHER, savedTeacherMsg.getSenderType());
+        assertEquals(student.getId(), savedTeacherMsg.getTargetStudent().getId());
+        assertEquals(marcusStudent.getId(), savedTeacherMsg.getReferencedStudent().getId());
+        assertEquals("DIRECT_INVITATION_REFERENCING_PEER", savedTeacherMsg.getRoutingReason());
+
+        Message savedStudentMsg = savedMessages.get(1);
+        assertEquals(SenderType.STUDENT, savedStudentMsg.getSenderType());
+        assertEquals(student.getId(), savedStudentMsg.getStudent().getId());
+        assertEquals(student.getId(), savedStudentMsg.getTargetStudent().getId());
+        assertEquals(marcusStudent.getId(), savedStudentMsg.getReferencedStudent().getId());
+        assertEquals("DIRECT_INVITATION_REFERENCING_PEER", savedStudentMsg.getRoutingReason());
     }
 }

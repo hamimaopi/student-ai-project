@@ -169,23 +169,50 @@ export const TeacherSetupView: React.FC<Props> = ({
                         {classroom.description}
                       </p>
 
-                      {/* Student on roster preview */}
-                      <div className={styles.studentCard}>
-                        <img
-                          src={student?.avatarUrl || '/images/avatar_sue.png'}
-                          alt={student?.name || 'Sue'}
-                          className={styles.studentAvatar}
-                        />
-                        <div>
-                          <div className={styles.studentNameRow}>
-                            <span className={styles.studentName}>
-                              {student?.name || 'Sue'}
-                            </span>
-                            <span className={styles.studentGradeBadge}>
-                              {student?.gradeLevel || '8th Grade'}
-                            </span>
+                      {/* Students on roster preview */}
+                      <div className={styles.studentsList}>
+                        {classroom.students && classroom.students.length > 0 ? (
+                          classroom.students.map((st) => (
+                            <div key={st.id} className={styles.studentCard}>
+                              <img
+                                src={st.avatarUrl || '/images/avatar_sue.png'}
+                                alt={st.name}
+                                className={styles.studentAvatar}
+                              />
+                              <div>
+                                <div className={styles.studentNameRow}>
+                                  <span className={styles.studentName}>
+                                    {st.name}
+                                  </span>
+                                  <span className={styles.studentGradeBadge}>
+                                    {st.gradeLevel || '8th Grade'}
+                                  </span>
+                                </div>
+                                <div className={styles.studentPersonality}>
+                                  {st.personality}
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className={styles.studentCard}>
+                            <img
+                              src={student?.avatarUrl || '/images/avatar_sue.png'}
+                              alt={student?.name || 'Sue'}
+                              className={styles.studentAvatar}
+                            />
+                            <div>
+                              <div className={styles.studentNameRow}>
+                                <span className={styles.studentName}>
+                                  {student?.name || 'Sue'}
+                                </span>
+                                <span className={styles.studentGradeBadge}>
+                                  {student?.gradeLevel || '8th Grade'}
+                                </span>
+                              </div>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     </div>
 

@@ -15,6 +15,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [showPastConversations, setShowPastConversations] = useState<boolean>(false);
   const [endLessonSignal, setEndLessonSignal] = useState<number>(0);
+  const [isEndingSession, setIsEndingSession] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     return (localStorage.getItem('student_ai_theme') as 'light' | 'dark') || 'dark';
@@ -95,7 +96,8 @@ export default function App() {
         teacherName={activeSession?.teacherName}
         teacherBadge={activeSession?.teacherBadge}
         turnCount={activeSession?.turnCount}
-        onEndSession={activeSession ? () => setEndLessonSignal((s) => s + 1) : undefined}
+        isEndingSession={isEndingSession}
+        onEndSession={activeSession && !isEndingSession ? () => setEndLessonSignal((s) => s + 1) : undefined}
         onOpenPastConversations={() => setShowPastConversations(true)}
         onGoHome={handleGoHome}
         theme={theme}
@@ -137,6 +139,8 @@ export default function App() {
           onSessionEnded={() => setActiveSession(null)}
           onRestart={handleRestart}
           endLessonSignal={endLessonSignal}
+          isEndingSession={isEndingSession}
+          onEndingChange={setIsEndingSession}
           onSessionUpdated={(updated) => setActiveSession(updated)}
         />
       ) : null}

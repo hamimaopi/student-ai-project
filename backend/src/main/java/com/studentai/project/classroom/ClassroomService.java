@@ -66,6 +66,8 @@ public class ClassroomService {
                 .personality(student.getPersonality())
                 .gradeLevel(student.getGradeLevel())
                 .avatarUrl(student.getAvatarUrl())
+                .participationWeight(student.getParticipationWeight())
+                .speakingStyle(student.getSpeakingStyle())
                 .build();
     }
 }

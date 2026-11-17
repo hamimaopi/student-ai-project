@@ -15,4 +15,6 @@ public class StudentSummaryResponse {
     private String personality;
     private String gradeLevel;
     private String avatarUrl;
+    private Integer participationWeight;
+    private String speakingStyle;
 }

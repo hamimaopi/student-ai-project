@@ -7,6 +7,7 @@ interface Props {
   teacherName?: string;
   teacherBadge?: TeacherBadge;
   turnCount?: number;
+  isEndingSession?: boolean;
   onEndSession?: () => void;
   onOpenPastConversations?: () => void;
   onGoHome?: () => void;
@@ -26,6 +27,7 @@ export const Navbar: React.FC<Props> = ({
   teacherName,
   teacherBadge,
   turnCount,
+  isEndingSession,
   onEndSession,
   onOpenPastConversations,
   onGoHome,
@@ -105,10 +107,11 @@ export const Navbar: React.FC<Props> = ({
               {onEndSession && (
                 <button
                   id="btn-end-session"
+                  disabled={isEndingSession}
                   onClick={onEndSession}
                   className={`btn-secondary ${styles.endLessonBtn}`}
                 >
-                  End Lesson
+                  {isEndingSession ? 'Analyzing... ⏳' : 'End Lesson'}
                 </button>
               )}
             </>
