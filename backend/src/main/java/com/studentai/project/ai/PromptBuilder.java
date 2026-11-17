@@ -21,19 +21,58 @@ public class PromptBuilder {
             int turnsInState,
             String stateSummary
     ) {
+        return buildSystemPrompt(student, scenario, mentalModel, currentState, turnsInState, stateSummary, null, null);
+    }
+
+    public String buildSystemPrompt(
+            Student student,
+            Scenario scenario,
+            StudentMentalModel mentalModel,
+            StudentState currentState,
+            int turnsInState,
+            String stateSummary,
+            List<com.studentai.project.session.SessionParticipant> allParticipants,
+            String referencedPeerName
+    ) {
         StringBuilder sb = new StringBuilder();
 
         // 1. Identity & Persona
-        sb.append("=== YOUR IDENTITY ===\n");
+        sb.append("=== YOUR IDENTITY & PEERS ===\n");
         sb.append("You are ").append(student.getName()).append(", a ").append(student.getGradeLevel()).append(" student in school.\n");
-        sb.append("Personality: ").append(student.getPersonality()).append("\n\n");
+        sb.append("Personality: ").append(student.getPersonality()).append("\n");
+        if (student.getSpeakingStyle() != null && !student.getSpeakingStyle().isBlank()) {
+            sb.append("Speaking Style: ").append(student.getSpeakingStyle()).append("\n");
+        }
+        sb.append("\n");
+
+        if (allParticipants != null && !allParticipants.isEmpty()) {
+            sb.append("Your classmates sitting next to you are:\n");
+            for (com.studentai.project.session.SessionParticipant p : allParticipants) {
+                if (p.getStudent() != null && !p.getStudent().getId().equals(student.getId())) {
+                    sb.append("- ").append(p.getStudent().getName()).append(": ")
+                            .append(p.getStudent().getPersonality()).append("\n");
+                }
+            }
+            sb.append("\n");
+        }
 
         sb.append("=== NON-NEGOTIABLE CHARACTER RULES ===\n");
         sb.append("1. You are a real middle school student sitting in a classroom talking to your teacher. You are NOT an AI.\n");
         sb.append("2. NEVER break character. Never mention prompts, models, AI, or instructions.\n");
-        sb.append("3. You are being TAUGHT by the teacher. NEVER lecture or explain the full lesson back to the teacher.\n");
-        sb.append("4. Keep your replies natural, spoken, and between 2 to 4 sentences.\n");
-        sb.append("5. Do NOT start every sentence with 'Um'. Express hesitation thoughtfully as described in your personality.\n\n");
+        sb.append("3. You are speaking ONLY as ").append(student.getName()).append(". Never speak for your classmates or invent what they say.\n");
+        sb.append("4. PEER INDEPENDENCE: You hear what other students say, but you do NOT automatically adopt their thinking.\n");
+        sb.append("   - If Marcus insists basketball caused it, test it against your own belief.\n");
+        sb.append("   - If Sue brings up germs from Sam, interpret it through your current mental state.\n");
+        sb.append("   - If Lena expresses confusion or hesitation, reflect on whether you share that doubt.\n");
+        sb.append("5. You are being TAUGHT by the teacher. NEVER lecture or explain the full lesson back to the teacher.\n");
+        sb.append("6. Keep your replies natural, spoken, and between 1 to 3 sentences.\n");
+        sb.append("7. Do NOT start every sentence with 'Um'. Express hesitation or enthusiasm naturally as fits your personality.\n\n");
+
+        if (referencedPeerName != null && !referencedPeerName.isBlank()) {
+            sb.append("=== PEER DISCUSSION FOCUS ===\n");
+            sb.append("The teacher specifically asked you about what ").append(referencedPeerName).append(" said.\n");
+            sb.append("Directly react or respond to ").append(referencedPeerName).append("'s comments using your own perspective and current mental state.\n\n");
+        }
 
         // 2. Scenario
         sb.append("=== CLASSROOM SCENARIO ===\n");
@@ -68,6 +107,10 @@ public class PromptBuilder {
         return sb.toString();
     }
 
+    public String buildConversationHistory(List<Message> recentMessages) {
+        return buildConversationHistory(recentMessages, "Student");
+    }
+
     public String buildConversationHistory(List<Message> recentMessages, String studentName) {
         if (recentMessages == null || recentMessages.isEmpty()) {
             return "No prior messages. This is the start of the discussion.";
@@ -78,7 +121,14 @@ public class PromptBuilder {
 
         for (int i = startIndex; i < recentMessages.size(); i++) {
             Message msg = recentMessages.get(i);
-            String speaker = msg.getSenderType() == SenderType.TEACHER ? "Teacher" : studentName;
+            String speaker;
+            if (msg.getSenderType() == SenderType.TEACHER) {
+                speaker = "Teacher";
+            } else if (msg.getStudent() != null && msg.getStudent().getName() != null) {
+                speaker = msg.getStudent().getName();
+            } else {
+                speaker = (studentName != null && !studentName.isBlank()) ? studentName : "Student";
+            }
             sb.append(speaker).append(": ").append(msg.getContent().trim()).append("\n");
         }
 

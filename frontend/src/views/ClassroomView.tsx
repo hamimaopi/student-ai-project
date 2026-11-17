@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { SessionData, ChatMessage, SessionParticipant } from '../types';
 import { api } from '../api/client';
-import { StudentProfileCard } from '../components/StudentProfileCard';
+import { ClassroomRosterPanel } from '../components/ClassroomRosterPanel';
 import { ScenarioDrawer } from '../components/ScenarioDrawer';
 import { ChatMessages } from '../components/ChatMessages';
 import { ChatInput } from '../components/ChatInput';
@@ -14,7 +14,82 @@ interface Props {
   onSessionEnded: () => void;
   onRestart: () => void;
   endLessonSignal?: number;
+  isEndingSession?: boolean;
+  onEndingChange?: (isEnding: boolean) => void;
   onSessionUpdated?: (session: SessionData) => void;
+}
+
+const NAME_ALIASES: Record<string, string[]> = {
+  marcus: ['marcus', 'markus', 'marcos', 'marcuss'],
+  lena: ['lena', 'leena', 'leana', 'lina'],
+  sue: ['sue', 'su', 'suzy', 'susie']
+};
+
+function detectAddressedStudent(text: string, participants?: SessionParticipant[]): SessionParticipant | null {
+  if (!text || !participants || participants.length === 0) return null;
+  const clean = text.trim();
+
+  // Tier 3 Check: Exclusion queries ("Does anyone agree with Marcus?", "who agrees with lena")
+  // Return null so the UI indicates group thinking (👥) rather than picking the excluded peer
+  const peerExclusionPattern =
+    /\b(?:(?:does\s+)?anyone|anybody|who|someone|anyone\s+else|everybody\s+else|rest\s+of\s+(?:the\s+)?class)\b.*?\b(?:agree|disagree|think|different|another)\b/i;
+  if (peerExclusionPattern.test(clean)) {
+    return null;
+  }
+
+  interface FoundMention {
+    participant: SessionParticipant;
+    start: number;
+    end: number;
+  }
+  const mentions: FoundMention[] = [];
+
+  for (const p of participants) {
+    const lower = p.studentName.toLowerCase();
+    const aliases = NAME_ALIASES[lower] || [lower];
+    const regex = new RegExp(`\\b(?:${aliases.join('|')})\\b`, 'gi');
+    let match: RegExpExecArray | null;
+    while ((match = regex.exec(clean)) !== null) {
+      mentions.push({ participant: p, start: match.index, end: regex.lastIndex });
+    }
+  }
+
+  if (mentions.length === 0) return null;
+  mentions.sort((a, b) => a.start - b.start);
+
+  const distinctParticipants = Array.from(new Set(mentions.map((m) => m.participant.studentId)));
+
+  // Single student mentioned: 100% intentional target regardless of grammar/commas
+  if (distinctParticipants.length === 1) {
+    return mentions[0].participant;
+  }
+
+  // Two students mentioned (e.g. "Sue, what do you think of Marcus?", "what do you think of sue marcus")
+  if (distinctParticipants.length === 2) {
+    const firstMention = mentions[0];
+    const lastMention = mentions[mentions.length - 1];
+
+    const textBeforeFirst = clean.slice(0, firstMention.start).trim();
+    const textBetween = clean.slice(firstMention.end, lastMention.start).trim();
+
+    const firstIsPeerObject = /\b(?:of|about|with|from|than|on)\s*$/i.test(textBeforeFirst);
+    const lastIsPeerObject = /\b(?:of|about|with|from|than|on)\s*$/i.test(textBetween);
+
+    if (firstIsPeerObject && !lastIsPeerObject) {
+      // e.g. "what do you think of sue marcus" -> target is Marcus
+      return lastMention.participant;
+    }
+    if (lastIsPeerObject && !firstIsPeerObject) {
+      // e.g. "sue what about marcus" -> target is Sue
+      return firstMention.participant;
+    }
+    if (/[,:;?!]\s*$/.test(textBetween)) {
+      return lastMention.participant;
+    }
+    return firstMention.participant;
+  }
+
+  return null;
 }
 
 export const ClassroomView: React.FC<Props> = ({
@@ -22,16 +97,29 @@ export const ClassroomView: React.FC<Props> = ({
   onSessionEnded,
   onRestart,
   endLessonSignal,
+  isEndingSession: isEndingSessionProp,
+  onEndingChange,
   onSessionUpdated
 }) => {
   const [session, setSession] = useState<SessionData>(initialSession);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isThinking, setIsThinking] = useState<boolean>(false);
+  const [internalIsEnding, setInternalIsEnding] = useState<boolean>(false);
   const [showDebrief, setShowDebrief] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
+  const [pendingSpeaker, setPendingSpeaker] = useState<{ name: string; avatarUrl?: string } | null>(null);
 
-  const participant: SessionParticipant | undefined = session.participants?.[0];
+  const isEnding = isEndingSessionProp ?? internalIsEnding;
+  const setIsEnding = (val: boolean) => {
+    setInternalIsEnding(val);
+    onEndingChange?.(val);
+  };
+
+  const activeParticipant: SessionParticipant | undefined =
+    session.participants?.find((p) => p.studentId === selectedStudentId) ||
+    session.participants?.[0];
 
   // Live timer for elapsed conversation duration
   useEffect(() => {
@@ -79,10 +167,31 @@ export const ClassroomView: React.FC<Props> = ({
     return () => { isMounted = false; };
   }, [session.id]);
 
-  const handleSendMessage = async (content: string) => {
+  const handleSendMessage = async (content: string, overrideTargetStudentId?: string | null) => {
     if (!content.trim() || isThinking) return;
 
     setError(null);
+    const effectiveTargetId = overrideTargetStudentId !== undefined ? overrideTargetStudentId : selectedStudentId;
+
+    let expectedStudent: SessionParticipant | undefined = undefined;
+    if (effectiveTargetId) {
+      expectedStudent = session.participants?.find((p) => p.studentId === effectiveTargetId || p.id === effectiveTargetId);
+    } else {
+      expectedStudent = detectAddressedStudent(content, session.participants) || undefined;
+    }
+
+    if (expectedStudent) {
+      setPendingSpeaker({
+        name: expectedStudent.studentName,
+        avatarUrl: expectedStudent.avatarUrl
+      });
+    } else {
+      setPendingSpeaker({
+        name: 'The class',
+        avatarUrl: undefined
+      });
+    }
+
     const tempTeacherMessage: ChatMessage = {
       id: `temp-${Date.now()}`,
       sessionId: session.id,
@@ -101,10 +210,10 @@ export const ClassroomView: React.FC<Props> = ({
       const response = await api.sendMessage({
         sessionId: session.id,
         content: content.trim(),
-        targetStudentId: participant?.studentId
+        targetStudentId: effectiveTargetId
       });
 
-      // Update state with confirmed student message and updated participant
+      // Update state with confirmed student message and updated participant roster
       const confirmedReply: ChatMessage = {
         ...response.reply,
         createdAt: response.reply.createdAt || new Date().toISOString()
@@ -112,9 +221,13 @@ export const ClassroomView: React.FC<Props> = ({
       setMessages((prev) => [...prev, confirmedReply]);
 
       setSession((prev) => {
-        const updatedParticipants = prev.participants.map((p) =>
-          p.id === response.participantState.id ? response.participantState : p
-        );
+        const updatedParticipants =
+          response.allParticipants && response.allParticipants.length > 0
+            ? response.allParticipants
+            : prev.participants.map((p) =>
+                p.id === response.participantState.id ? response.participantState : p
+              );
+
         const updatedSession = {
           ...prev,
           turnCount: prev.turnCount + 2,
@@ -123,29 +236,25 @@ export const ClassroomView: React.FC<Props> = ({
         onSessionUpdated?.(updatedSession);
         return updatedSession;
       });
-
-      // If Sue reached understanding, celebrate with debrief!
-      if (response.participantState.currentState === 'UNDERSTANDING') {
-        setTimeout(async () => {
-          try {
-            const ended = await api.endSession(session.id);
-            setSession(ended);
-            onSessionUpdated?.(ended);
-          } catch (e) {
-            console.warn('Failed to auto-end session on mastery:', e);
-          }
-          setShowDebrief(true);
-        }, 1200);
-      }
     } catch (err: unknown) {
       console.error('Error sending message:', err);
       setError(err instanceof Error ? err.message : 'Failed to communicate with student AI');
     } finally {
       setIsThinking(false);
+      setPendingSpeaker(null);
     }
   };
 
   const handleEndSessionClick = async () => {
+    if (isEnding) return;
+
+    // Fast-path: If the session already concluded and debrief data is present, open immediately
+    if (session.debrief) {
+      setShowDebrief(true);
+      return;
+    }
+
+    setIsEnding(true);
     try {
       const updated = await api.endSession(session.id);
       setSession(updated);
@@ -154,6 +263,8 @@ export const ClassroomView: React.FC<Props> = ({
     } catch (err) {
       console.error('Failed to end session:', err);
       setShowDebrief(true);
+    } finally {
+      setIsEnding(false);
     }
   };
 
@@ -185,19 +296,23 @@ export const ClassroomView: React.FC<Props> = ({
         <button
           id="btn-end-lesson-top"
           type="button"
+          disabled={isEnding}
           className={`btn-secondary ${styles.endButton}`}
           onClick={handleEndSessionClick}
         >
-          End Lesson & View Debrief 📊
+          {isEnding ? 'Analyzing Discussion... ⏳' : 'End Lesson & View Debrief 📊'}
         </button>
       </div>
 
       <div className={`container-max ${styles.classroomGrid}`}>
-        {/* Left Column: Student Profile & Scenario */}
+        {/* Left Column: Multi-Student Classroom Roster & Scenario */}
         <aside className={styles.leftColumn}>
-          <StudentProfileCard
-            participant={participant}
+          <ClassroomRosterPanel
+            participants={session.participants}
             isThinking={isThinking}
+            selectedStudentId={selectedStudentId}
+            onSelectStudent={setSelectedStudentId}
+            thinkingStudentName={pendingSpeaker?.name}
           />
 
           <ScenarioDrawer
@@ -211,8 +326,8 @@ export const ClassroomView: React.FC<Props> = ({
           <ChatMessages
             messages={messages}
             isThinking={isThinking}
-            studentName={participant?.studentName || 'Sue'}
-            studentAvatarUrl={participant?.avatarUrl || '/images/avatar_sue.png'}
+            thinkingStudentName={pendingSpeaker?.name || 'The class'}
+            thinkingAvatarUrl={pendingSpeaker?.avatarUrl}
             teacherName={session.teacherName || 'Teacher'}
             teacherBadge={session.teacherBadge}
             startedAt={session.startedAt}
@@ -223,11 +338,35 @@ export const ClassroomView: React.FC<Props> = ({
           <ChatInput
             onSendMessage={handleSendMessage}
             disabled={isThinking || session.endedAt != null}
-            studentState={participant?.currentState}
-            studentName={participant?.studentName}
+            participants={session.participants}
+            selectedStudentId={selectedStudentId}
+            onSelectStudent={setSelectedStudentId}
+            studentState={activeParticipant?.currentState}
+            studentName={activeParticipant?.studentName}
           />
         </main>
       </div>
+
+      {isEnding && (
+        <div id="debrief-loading-overlay" className={styles.loadingOverlay}>
+          <div className={styles.loadingCard}>
+            <div className={styles.loadingIconWrapper}>
+              📊
+            </div>
+            <h3 className={styles.loadingTitle}>Analyzing Classroom Discussion</h3>
+            <p className={styles.loadingSubtitle}>
+              Evaluating teaching strategies, tracking student misconception shifts, and calculating attention equity metrics across {messages.length || session.turnCount || 0} turns...
+            </p>
+            <div className={styles.loadingProgressBar}>
+              <div className={styles.loadingProgressFill} />
+            </div>
+            <div className={styles.loadingTip}>
+              <span>💡</span>
+              <span>Our pedagogical coach is synthesizing turning points and personalized feedback.</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showDebrief && (
         <DebriefModal

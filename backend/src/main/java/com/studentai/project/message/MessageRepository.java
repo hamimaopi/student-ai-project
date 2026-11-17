@@ -18,4 +18,6 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
     int findMaxTurnNumberBySessionId(@Param("sessionId") UUID sessionId);
 
     Optional<Message> findFirstBySessionIdOrderByTurnNumberDesc(UUID sessionId);
+
+    Optional<Message> findFirstBySessionIdAndSenderTypeOrderByTurnNumberDesc(UUID sessionId, SenderType senderType);
 }

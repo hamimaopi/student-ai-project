@@ -7,28 +7,33 @@ interface Props {
 }
 
 export const ThinkingIndicator: React.FC<Props> = ({
-  studentName = 'Sue',
-  avatarUrl = '/images/avatar_sue.png'
+  studentName = 'The class',
+  avatarUrl
 }) => {
   return (
     <div id="thinking-indicator" className={`animate-slide-up ${styles.container}`}>
-      <img
-        src={avatarUrl}
-        alt={studentName}
-        className={styles.avatar}
-      />
+      {avatarUrl ? (
+        <img
+          src={avatarUrl}
+          alt={studentName}
+          className={styles.avatar}
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = '/images/avatar_sue.png';
+          }}
+        />
+      ) : (
+        <div className={styles.avatarPlaceholder} title="Classroom reflection">
+          👥
+        </div>
+      )}
       <div className={styles.bubble}>
         <span className={styles.text}>
           {studentName} is thinking
         </span>
         <div className={styles.dotsRow}>
-          {[0, 1, 2].map((i) => (
-            <span
-              key={i}
-              className={styles.dot}
-              style={{ animationDelay: `${i * 0.2}s` }}
-            />
-          ))}
+          <span className={styles.dot} />
+          <span className={styles.dot} />
+          <span className={styles.dot} />
         </div>
       </div>
     </div>

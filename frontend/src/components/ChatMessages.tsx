@@ -9,6 +9,8 @@ interface Props {
   isThinking: boolean;
   studentName?: string;
   studentAvatarUrl?: string;
+  thinkingStudentName?: string;
+  thinkingAvatarUrl?: string;
   teacherName?: string;
   teacherBadge?: TeacherBadge;
   startedAt?: string;
@@ -23,11 +25,30 @@ const BADGE_EMOJIS: Record<TeacherBadge, string> = {
   panda: '🐼'
 };
 
+const STATE_BADGE_SHORT: Record<string, { label: string; icon: string }> = {
+  CONFIDENTLY_WRONG: { label: 'Confidently Wrong', icon: '🔴' },
+  DEFENSIVE: { label: 'Defensive', icon: '🟠' },
+  CONFUSED: { label: 'Confused', icon: '🟡' },
+  TENTATIVELY_CORRECT: { label: 'Tentatively Correct', icon: '🔵' },
+  UNDERSTANDING: { label: 'Understanding', icon: '🟢' }
+};
+
+const ROUTING_LABELS: Record<string, string> = {
+  MANUAL_TEACHER_SELECTION: '🎯 Called On',
+  DIRECT_INVITATION_REFERENCING_PEER: '💬 Discussing Peer',
+  PEER_EXCLUSION_QUERY: '🔄 Peer Inquiry',
+  DIRECT_VOCATIVE_ADDRESS_START: '🙋 Addressed',
+  DIRECT_VOCATIVE_ADDRESS_END: '🙋 Addressed',
+  OPEN_CLASS_WEIGHTED_SELECTION: '✋ Volunteered'
+};
+
 export const ChatMessages: React.FC<Props> = ({
   messages,
   isThinking,
-  studentName = 'Sue',
-  studentAvatarUrl = '/images/avatar_sue.png',
+  studentName,
+  studentAvatarUrl,
+  thinkingStudentName,
+  thinkingAvatarUrl,
   teacherName = 'Teacher',
   teacherBadge = 'fox',
   startedAt,
@@ -51,10 +72,10 @@ export const ChatMessages: React.FC<Props> = ({
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}>💬</div>
           <h4 className={styles.emptyTitle}>
-            Classroom Discussion Ready
+            Science Classroom Ready
           </h4>
           <p className={styles.emptyText}>
-            Sue is sitting at her desk thinking about what happened to Anthony. Ask her what she thinks caused his cold to begin the conversation!
+            Marcus, Lena, and Sue are sitting at their desks ready for science class! Ask them what caused Anthony's cold to start the discussion, or call on a specific student.
           </p>
         </div>
       )}
@@ -88,6 +109,19 @@ export const ChatMessages: React.FC<Props> = ({
                   {isTeacher ? teacherName : msg.senderName}
                 </span>
 
+                {!isTeacher && msg.studentStateSnapshot && STATE_BADGE_SHORT[msg.studentStateSnapshot] && (
+                  <span className={`state-badge state-${msg.studentStateSnapshot} ${styles.msgStatePill}`}>
+                    <span>{STATE_BADGE_SHORT[msg.studentStateSnapshot].icon}</span>
+                    <span>{STATE_BADGE_SHORT[msg.studentStateSnapshot].label}</span>
+                  </span>
+                )}
+
+                {msg.routingReason && ROUTING_LABELS[msg.routingReason] && (
+                  <span className={styles.routingBadge}>
+                    {ROUTING_LABELS[msg.routingReason]}
+                  </span>
+                )}
+
                 <span className={styles.turnBadge}>
                   Turn #{msg.turnNumber}
                 </span>
@@ -110,7 +144,10 @@ export const ChatMessages: React.FC<Props> = ({
       })}
 
       {isThinking && (
-        <ThinkingIndicator studentName={studentName} avatarUrl={studentAvatarUrl} />
+        <ThinkingIndicator
+          studentName={thinkingStudentName || studentName}
+          avatarUrl={thinkingAvatarUrl || studentAvatarUrl}
+        />
       )}
 
       {/* Conversation Concluded Summary Card */}

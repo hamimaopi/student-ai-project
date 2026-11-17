@@ -1,6 +1,7 @@
 package com.studentai.project.student;
 
 import com.studentai.project.classroom.Scenario;
+import com.studentai.project.statemachine.StudentState;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -46,6 +47,14 @@ public class StudentMentalModel {
     @Column(name = "defenses", columnDefinition = "jsonb")
     @Builder.Default
     private List<String> defenses = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "initial_state", nullable = false, length = 30)
+    @Builder.Default
+    private StudentState initialState = StudentState.CONFIDENTLY_WRONG;
+
+    @Column(name = "target_concept", columnDefinition = "TEXT")
+    private String targetConcept;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

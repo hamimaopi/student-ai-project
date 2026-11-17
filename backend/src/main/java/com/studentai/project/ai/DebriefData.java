@@ -17,7 +17,24 @@ public class DebriefData {
     private int totalTurns;
     private String summary;
     private String breakthroughMoment;
+    private String classroomManagementAdvice;
     private Map<String, Integer> strategyBreakdown;
+    private Map<String, Integer> equityBreakdown;
+    private Map<String, StudentOutcome> studentOutcomes;
     private List<String> strengths;
     private List<String> growthOpportunities;
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class StudentOutcome {
+        private String studentName;
+        private StudentState initialState;
+        private StudentState finalState;
+        private int turnsSpoken;
+        private String breakthroughMoment;
+        private boolean masteryAchieved;
+    }
 }

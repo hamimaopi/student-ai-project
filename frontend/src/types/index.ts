@@ -46,18 +46,34 @@ export interface SessionParticipant {
   studentName: string;
   avatarUrl: string;
   personality: string;
+  initialState?: StudentState;
   currentState: StudentState;
   turnsInState: number;
+  turnsSpoken?: number;
+  lastSpokeAtTurn?: number | null;
+  participationWeight?: number | null;
   stateSummary?: string | null;
+}
+
+export interface StudentOutcome {
+  studentName: string;
+  initialState: StudentState;
+  finalState: StudentState;
+  turnsSpoken: number;
+  breakthroughMoment: string;
+  masteryAchieved: boolean;
 }
 
 export interface DebriefData {
   masteryAchieved: boolean;
-  finalStudentState: StudentState;
+  finalStudentState?: StudentState;
   totalTurns: number;
   summary: string;
-  breakthroughMoment: string;
+  breakthroughMoment?: string;
+  classroomManagementAdvice?: string;
   strategyBreakdown: Record<string, number>;
+  equityBreakdown?: Record<string, number>;
+  studentOutcomes?: Record<string, StudentOutcome>;
   strengths: string[];
   growthOpportunities: string[];
 }
@@ -92,6 +108,10 @@ export interface ChatMessage {
   sessionId: string;
   senderType: 'TEACHER' | 'STUDENT';
   studentId?: string | null;
+  targetStudentId?: string | null;
+  referencedStudentId?: string | null;
+  routingReason?: string | null;
+  studentStateSnapshot?: StudentState | null;
   senderName: string;
   avatarUrl: string;
   content: string;
@@ -108,6 +128,9 @@ export interface SendMessagePayload {
 export interface ChatSendResponse {
   reply: ChatMessage;
   participantState: SessionParticipant;
+  allParticipants?: SessionParticipant[];
+  routedStudentName?: string;
+  routingReason?: string;
 }
 
 export interface ErrorResponse {
