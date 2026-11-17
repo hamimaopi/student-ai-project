@@ -620,7 +620,7 @@ export const PastConversationsModal: React.FC<Props> = ({ classrooms, onClose })
                               </div>
                             ) : (
                               <img
-                                src={m.avatarUrl || '/images/avatar_sue.jpg'}
+                                src={m.avatarUrl || '/images/avatar_sue.png'}
                                 alt="Student"
                                 style={{
                                   width: '34px',

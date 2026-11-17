@@ -53,7 +53,7 @@ export const StudentProfileCard: React.FC<Props> = ({ participant, isThinking })
         {/* Avatar with dynamic glow */}
         <div className={styles.avatarWrapper}>
           <img
-            src={participant.avatarUrl || '/images/avatar_sue.jpg'}
+            src={participant.avatarUrl || '/images/avatar_sue.png'}
             alt={participant.studentName}
             className={`${styles.avatar} ${isThinking ? `animate-thinking-glow ${styles.avatarThinking}` : ''}`}
           />
@@ -74,10 +74,6 @@ export const StudentProfileCard: React.FC<Props> = ({ participant, isThinking })
               8th Grade
             </span>
           </div>
-
-          <p className={styles.personality}>
-            {participant.personality || 'Neurodiverse 8th grader learning science. Thoughtful and occasionally hesitant.'}
-          </p>
         </div>
       </div>
 
@@ -102,12 +98,6 @@ export const StudentProfileCard: React.FC<Props> = ({ participant, isThinking })
         <p className={styles.explanation}>
           {stateInfo.explanation}
         </p>
-
-        {participant.stateSummary && (
-          <div className={styles.summaryFooter}>
-            <strong>Pedagogical summary:</strong> {participant.stateSummary}
-          </div>
-        )}
       </div>
     </div>
   );

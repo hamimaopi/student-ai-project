@@ -40,19 +40,6 @@ export const ScenarioDrawer: React.FC<Props> = ({ title, description }) => {
           <p className={styles.description}>
             {description}
           </p>
-
-          {/* Teaching Clues & Distractor Badges */}
-          <div className={styles.cluesRow}>
-            <span className={styles.clueCyan}>
-              🔍 Clue: Sam & Anthony worked closely
-            </span>
-            <span className={styles.cluePurple}>
-              ⏳ Mechanism: Incubation period takes days
-            </span>
-            <span className={styles.clueRed}>
-              ⚠️ Distractor: Basketball tiredness is a symptom, not the cause
-            </span>
-          </div>
         </div>
       )}
     </div>

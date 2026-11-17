@@ -27,7 +27,7 @@ export const ChatMessages: React.FC<Props> = ({
   messages,
   isThinking,
   studentName = 'Sue',
-  studentAvatarUrl = '/images/avatar_sue.jpg',
+  studentAvatarUrl = '/images/avatar_sue.png',
   teacherName = 'Teacher',
   teacherBadge = 'fox',
   startedAt,
