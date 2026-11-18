@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { ClassroomDetail, SessionData, ChatMessage, TeacherBadge } from '../types';
 import { api } from '../api/client';
 import { formatMessageTime, formatDuration } from '../utils/formatters';
+import { getStudentAvatarUrl } from '../utils/avatarUtils';
 import styles from './PastConversationsModal.module.css';
 
 interface Props {
@@ -380,9 +381,12 @@ export const PastConversationsModal: React.FC<Props> = ({ classrooms, onClose })
                               </div>
                             ) : (
                               <img
-                                src={m.avatarUrl || '/images/avatar_sue.png'}
-                                alt="Student"
+                                src={getStudentAvatarUrl(m.senderName, m.avatarUrl)}
+                                alt={m.senderName || 'Student'}
                                 className={styles.studentAvatar}
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = getStudentAvatarUrl(m.senderName);
+                                }}
                               />
                             )}
 

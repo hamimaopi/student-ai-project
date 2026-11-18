@@ -7,6 +7,7 @@ import { ChatMessages } from '../components/ChatMessages';
 import { ChatInput } from '../components/ChatInput';
 import { DebriefModal } from '../components/DebriefModal';
 import { formatStopwatch, formatDuration } from '../utils/formatters';
+import { getStudentAvatarUrl } from '../utils/avatarUtils';
 import styles from './ClassroomView.module.css';
 
 interface Props {
@@ -183,7 +184,7 @@ export const ClassroomView: React.FC<Props> = ({
     if (expectedStudent) {
       setPendingSpeaker({
         name: expectedStudent.studentName,
-        avatarUrl: expectedStudent.avatarUrl
+        avatarUrl: getStudentAvatarUrl(expectedStudent.studentName, expectedStudent.avatarUrl)
       });
     } else {
       setPendingSpeaker({

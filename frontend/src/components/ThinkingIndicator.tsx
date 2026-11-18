@@ -1,4 +1,5 @@
 import React from 'react';
+import { getStudentAvatarUrl } from '../utils/avatarUtils';
 import styles from './ThinkingIndicator.module.css';
 
 interface Props {
@@ -10,15 +11,27 @@ export const ThinkingIndicator: React.FC<Props> = ({
   studentName = 'The class',
   avatarUrl
 }) => {
+  const isWholeClass =
+    !studentName ||
+    studentName.trim().toLowerCase() === 'the class' ||
+    studentName.trim().toLowerCase() === 'class';
+
+  const resolvedAvatar = isWholeClass
+    ? undefined
+    : (avatarUrl ? getStudentAvatarUrl(studentName, avatarUrl) : (studentName ? getStudentAvatarUrl(studentName) : undefined));
+
   return (
     <div id="thinking-indicator" className={`animate-slide-up ${styles.container}`}>
-      {avatarUrl ? (
+      {resolvedAvatar ? (
         <img
-          src={avatarUrl}
+          src={resolvedAvatar}
           alt={studentName}
           className={styles.avatar}
           onError={(e) => {
-            (e.target as HTMLImageElement).src = '/images/avatar_sue.png';
+            const fallback = getStudentAvatarUrl(studentName);
+            if (fallback) {
+              (e.target as HTMLImageElement).src = fallback;
+            }
           }}
         />
       ) : (

@@ -335,4 +335,165 @@ class ChatServiceTest {
         assertEquals(marcusStudent.getId(), savedStudentMsg.getReferencedStudent().getId());
         assertEquals("DIRECT_INVITATION_REFERENCING_PEER", savedStudentMsg.getRoutingReason());
     }
+
+    @Test
+    @DisplayName("OFF_TOPIC message does not advance state, increment turnsInState, or pollute stateSummary")
+    void testOffTopicMessageLeavesMentalStateAndSummaryUnchanged() {
+        participant.setCurrentState(StudentState.DEFENSIVE);
+        participant.setTurnsInState(2);
+        participant.setStateSummary("Student defended their hypothesis about physical exhaustion.");
+
+        when(sessionRepository.findById(sessionId)).thenReturn(Optional.of(session));
+        when(participantRepository.findBySessionId(sessionId)).thenReturn(List.of(participant));
+        when(messageRepository.findFirstBySessionIdAndSenderTypeOrderByTurnNumberDesc(eq(sessionId), eq(SenderType.STUDENT)))
+                .thenReturn(Optional.empty());
+        when(messageRepository.findMaxTurnNumberBySessionId(sessionId)).thenReturn(2);
+
+        ArbitrationResult arbitration = ArbitrationResult.builder()
+                .targetParticipant(participant)
+                .routingReason("OPEN_CLASS_WEIGHTED_SELECTION")
+                .build();
+        when(discourseArbiter.arbitrate(any(), any(), any(), any())).thenReturn(arbitration);
+
+        TeacherMoveEvaluation evaluation = TeacherMoveEvaluation.builder()
+                .strategy(TeacherStrategy.OFF_TOPIC)
+                .recommendation(TransitionRecommendation.STAY)
+                .addressesMisconception(false)
+                .clarity("CLEAR_WITH_REASONING")
+                .turnSummary("Greeting or casual check-in from teacher.")
+                .build();
+        when(transitionEvaluator.evaluate(any(), any(), any(), eq("Hi guys"))).thenReturn(evaluation);
+
+        StateTransitionEngine.TransitionResult transition = StateTransitionEngine.TransitionResult.builder()
+                .nextState(StudentState.DEFENSIVE)
+                .stateChanged(false)
+                .reason("Off-topic conversation; student mental model state unchanged.")
+                .build();
+        when(stateTransitionEngine.computeNextState(eq(StudentState.DEFENSIVE), eq(TeacherStrategy.OFF_TOPIC), eq(TransitionRecommendation.STAY), eq(2)))
+                .thenReturn(transition);
+
+        when(participantRepository.save(any(SessionParticipant.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(messageRepository.findBySessionIdOrderByTurnNumberAsc(sessionId)).thenReturn(List.of());
+        when(promptBuilder.buildSystemPrompt(any(), any(), any(), any(), anyInt(), any(), any(), any()))
+                .thenReturn("System prompt");
+        when(promptBuilder.buildConversationHistory(any(), any())).thenReturn("History");
+        when(studentResponseGenerator.generateResponse(any(), any(), any(), any())).thenReturn("Hi Ms. Frizzle! Good morning.");
+
+        when(messageRepository.save(any(Message.class))).thenAnswer(invocation -> {
+            Message m = invocation.getArgument(0);
+            return Message.builder()
+                    .id(UUID.randomUUID())
+                    .session(m.getSession())
+                    .senderType(m.getSenderType())
+                    .student(m.getStudent())
+                    .targetStudent(m.getTargetStudent())
+                    .referencedStudent(m.getReferencedStudent())
+                    .routingReason(m.getRoutingReason())
+                    .studentStateSnapshot(m.getStudentStateSnapshot())
+                    .content(m.getContent())
+                    .turnNumber(m.getTurnNumber())
+                    .createdAt(Instant.now())
+                    .build();
+        });
+
+        SendMessageRequest request = SendMessageRequest.builder()
+                .sessionId(sessionId)
+                .content("Hi guys")
+                .build();
+
+        ChatSendResponse response = chatService.handleTeacherMessage(request);
+
+        assertNotNull(response);
+        assertEquals(StudentState.DEFENSIVE, response.getParticipantState().getCurrentState());
+        // turnsInState must NOT increment on OFF_TOPIC (should remain 2, not 3)
+        assertEquals(2, response.getParticipantState().getTurnsInState());
+        // turnsSpoken DOES increment
+        assertEquals(1, response.getParticipantState().getTurnsSpoken());
+        // stateSummary must NOT include off-topic greeting summary
+        assertEquals("Student defended their hypothesis about physical exhaustion.", response.getParticipantState().getStateSummary());
+        assertFalse(response.getParticipantState().getStateSummary().contains("Greeting"));
+    }
+
+    @Test
+    @DisplayName("OFF_TOPIC state invariance applies independently for Marcus, Lena, and Sue")
+    void testOffTopicInvarianceForAllThreeStudents() {
+        Student[] students = new Student[]{
+                Student.builder().id(UUID.randomUUID()).name("Marcus").build(),
+                Student.builder().id(UUID.randomUUID()).name("Lena").build(),
+                Student.builder().id(UUID.randomUUID()).name("Sue").build()
+        };
+
+        for (Student s : students) {
+            SessionParticipant p = SessionParticipant.builder()
+                    .id(UUID.randomUUID())
+                    .session(session)
+                    .student(s)
+                    .currentState(StudentState.CONFUSED)
+                    .turnsInState(1)
+                    .turnsSpoken(0)
+                    .stateSummary("Academic summary for " + s.getName())
+                    .build();
+
+            when(sessionRepository.findById(sessionId)).thenReturn(Optional.of(session));
+            when(participantRepository.findBySessionId(sessionId)).thenReturn(List.of(p));
+            when(messageRepository.findFirstBySessionIdAndSenderTypeOrderByTurnNumberDesc(eq(sessionId), eq(SenderType.STUDENT)))
+                    .thenReturn(Optional.empty());
+            when(messageRepository.findMaxTurnNumberBySessionId(sessionId)).thenReturn(0);
+
+            ArbitrationResult arbitration = ArbitrationResult.builder()
+                    .targetParticipant(p)
+                    .routingReason("OPEN_CLASS_WEIGHTED_SELECTION")
+                    .build();
+            when(discourseArbiter.arbitrate(any(), any(), any(), any())).thenReturn(arbitration);
+
+            TeacherMoveEvaluation evaluation = TeacherMoveEvaluation.builder()
+                    .strategy(TeacherStrategy.OFF_TOPIC)
+                    .recommendation(TransitionRecommendation.STAY)
+                    .addressesMisconception(false)
+                    .clarity("CLEAR")
+                    .turnSummary("Casual question.")
+                    .build();
+            when(transitionEvaluator.evaluate(any(), any(), any(), eq("Can you guys tell me a fun fact about yourselves?"))).thenReturn(evaluation);
+
+            StateTransitionEngine.TransitionResult transition = StateTransitionEngine.TransitionResult.builder()
+                    .nextState(StudentState.CONFUSED)
+                    .stateChanged(false)
+                    .reason("Off-topic conversation; student mental model state unchanged.")
+                    .build();
+            when(stateTransitionEngine.computeNextState(eq(StudentState.CONFUSED), eq(TeacherStrategy.OFF_TOPIC), eq(TransitionRecommendation.STAY), eq(1)))
+                    .thenReturn(transition);
+
+            when(participantRepository.save(any(SessionParticipant.class))).thenAnswer(invocation -> invocation.getArgument(0));
+            when(messageRepository.findBySessionIdOrderByTurnNumberAsc(sessionId)).thenReturn(List.of());
+            when(promptBuilder.buildSystemPrompt(any(), any(), any(), any(), anyInt(), any(), any(), any()))
+                    .thenReturn("System prompt");
+            when(promptBuilder.buildConversationHistory(any(), any())).thenReturn("History");
+            when(studentResponseGenerator.generateResponse(any(), any(), any(), any())).thenReturn("Fun fact: I love soccer!");
+
+            when(messageRepository.save(any(Message.class))).thenAnswer(invocation -> {
+                Message m = invocation.getArgument(0);
+                return Message.builder()
+                        .id(UUID.randomUUID())
+                        .session(m.getSession())
+                        .senderType(m.getSenderType())
+                        .student(m.getStudent())
+                        .targetStudent(m.getTargetStudent())
+                        .content(m.getContent())
+                        .turnNumber(m.getTurnNumber())
+                        .createdAt(Instant.now())
+                        .build();
+            });
+
+            SendMessageRequest request = SendMessageRequest.builder()
+                    .sessionId(sessionId)
+                    .content("Can you guys tell me a fun fact about yourselves?")
+                    .build();
+
+            ChatSendResponse response = chatService.handleTeacherMessage(request);
+
+            assertEquals(StudentState.CONFUSED, response.getParticipantState().getCurrentState(), "State must remain unchanged for " + s.getName());
+            assertEquals(1, response.getParticipantState().getTurnsInState(), "turnsInState must remain 1 for " + s.getName());
+            assertEquals("Academic summary for " + s.getName(), response.getParticipantState().getStateSummary(), "Summary must remain unchanged for " + s.getName());
+        }
+    }
 }

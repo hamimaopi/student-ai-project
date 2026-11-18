@@ -90,13 +90,30 @@ class StateTransitionEngineTest {
     void testConfusedRegressesToDefensive() {
         var result = engine.computeNextState(
                 StudentState.CONFUSED,
-                TeacherStrategy.OFF_TOPIC,
+                TeacherStrategy.TELLING,
                 TransitionRecommendation.REGRESS,
                 2
         );
 
         assertEquals(StudentState.DEFENSIVE, result.getNextState());
         assertTrue(result.isStateChanged());
+    }
+
+    @Test
+    @DisplayName("OFF_TOPIC leaves state unchanged for all states regardless of recommendation")
+    void testOffTopicLeavesStateUnchangedAcrossAllStates() {
+        for (StudentState state : StudentState.values()) {
+            for (TransitionRecommendation rec : TransitionRecommendation.values()) {
+                var result = engine.computeNextState(
+                        state,
+                        TeacherStrategy.OFF_TOPIC,
+                        rec,
+                        2
+                );
+                assertEquals(state, result.getNextState(), "State should be unchanged for " + state);
+                assertFalse(result.isStateChanged(), "State changed should be false for " + state);
+            }
+        }
     }
 
     @Test

@@ -52,11 +52,14 @@ public class TransitionEvaluator {
             - CONTRADICTION: Teacher highlights a contradiction or counterexample in the student's belief.
             - GUIDED_DISCOVERY: Teacher leads the student step-by-step to discover the mechanism themselves.
             - CONFIRMATION: Teacher affirms the student's correct reasoning.
-            - OFF_TOPIC: Unrelated chit-chat or irrelevant statements.
+            - OFF_TOPIC: Unrelated chit-chat, greetings ("Hi", "Good morning"), pleasantries ("How are you?"), personal questions ("fun fact", "weekend"), or statements with NO science lesson inquiry.
+
+            Rule for Mixed Messages:
+            - If the teacher combines a greeting with a science question (e.g. "Hi Sue, why did Anthony get sick?"), classify by its pedagogical strategy (e.g., PROBING or GUIDED_DISCOVERY), NOT OFF_TOPIC.
 
             Recommendation Rules:
             - ADVANCE: If the teacher asked a thoughtful question that challenges the misconception or provided clear reasoning that resolves confusion.
-            - STAY: If the teacher repeated themselves, gave partial answers, or made a weak probe.
+            - STAY: If the teacher repeated themselves, gave partial answers, made a weak probe, or engaged in off-topic small talk.
             - REGRESS: If the teacher gave contradictory, confusing, or misleading explanations.
 
             Do NOT include markdown formatting or explanations outside the JSON object.
@@ -103,10 +106,12 @@ public class TransitionEvaluator {
             JsonNode node = objectMapper.readTree(extracted);
 
             TeacherStrategy strategy = parseStrategy(node.path("strategy").asText());
-            boolean addressesMisconception = node.path("addressesMisconception").asBoolean(true);
+            boolean addressesMisconception = node.path("addressesMisconception").asBoolean(strategy != TeacherStrategy.OFF_TOPIC);
             String clarity = node.path("clarity").asText("CLEAR_WITH_REASONING");
             TransitionRecommendation recommendation = parseRecommendation(node.path("recommendation").asText());
-            String turnSummary = node.path("turnSummary").asText("Teacher responded to student's reasoning.");
+            String turnSummary = node.path("turnSummary").asText(
+                    strategy == TeacherStrategy.OFF_TOPIC ? "Conversational greeting or off-topic exchange." : "Teacher responded to student's reasoning."
+            );
 
             return TeacherMoveEvaluation.builder()
                     .strategy(strategy)
@@ -139,15 +144,57 @@ public class TransitionEvaluator {
         }
     }
 
-    private TeacherMoveEvaluation fallbackEvaluation(String teacherMessage) {
-        boolean isQuestion = teacherMessage != null && teacherMessage.trim().endsWith("?");
+    TeacherMoveEvaluation fallbackEvaluation(String teacherMessage) {
+        if (teacherMessage == null || teacherMessage.isBlank()) {
+            return TeacherMoveEvaluation.builder()
+                    .strategy(TeacherStrategy.OFF_TOPIC)
+                    .addressesMisconception(false)
+                    .clarity("UNCLEAR")
+                    .recommendation(TransitionRecommendation.STAY)
+                    .turnSummary("Empty teacher message.")
+                    .build();
+        }
+
+        String lower = teacherMessage.toLowerCase().trim();
+        boolean mentionsLesson = lower.contains("sick") || lower.contains("anthony") || lower.contains("sam")
+                || lower.contains("virus") || lower.contains("cold") || lower.contains("germ")
+                || lower.contains("basketball") || lower.contains("symptom") || lower.contains("illness")
+                || lower.contains("infect") || lower.contains("tired") || lower.contains("exhaust");
+
+        boolean isGreeting = lower.matches("^(hi|hello|hey|good morning|good afternoon|good evening|howdy|what's up|sup|greetings)[!., ]*.*");
+        boolean isCasual = isGreeting || lower.contains("weekend") || lower.contains("fun fact")
+                || lower.contains("hobby") || lower.contains("hobbies") || lower.contains("lunch")
+                || lower.contains("how are you") || lower.contains("how're you") || lower.contains("how was your")
+                || lower.contains("favorite");
+
+        if (!mentionsLesson && isCasual) {
+            return TeacherMoveEvaluation.builder()
+                    .strategy(TeacherStrategy.OFF_TOPIC)
+                    .addressesMisconception(false)
+                    .clarity("CLEAR_WITH_REASONING")
+                    .recommendation(TransitionRecommendation.STAY)
+                    .turnSummary("Greeting or casual check-in from teacher.")
+                    .build();
+        }
+
+        if (!mentionsLesson) {
+            return TeacherMoveEvaluation.builder()
+                    .strategy(TeacherStrategy.OFF_TOPIC)
+                    .addressesMisconception(false)
+                    .clarity("CLEAR_WITH_REASONING")
+                    .recommendation(TransitionRecommendation.STAY)
+                    .turnSummary("Teacher made an off-topic remark.")
+                    .build();
+        }
+
+        boolean isQuestion = lower.contains("?");
         TeacherStrategy strategy = isQuestion ? TeacherStrategy.PROBING : TeacherStrategy.TELLING;
         TransitionRecommendation rec = isQuestion ? TransitionRecommendation.ADVANCE : TransitionRecommendation.STAY;
 
         return TeacherMoveEvaluation.builder()
                 .strategy(strategy)
                 .addressesMisconception(true)
-                .clarity("PROCEDURAL_ONLY")
+                .clarity("CLEAR_WITH_REASONING")
                 .recommendation(rec)
                 .turnSummary(isQuestion ? "Teacher asked a question." : "Teacher made a statement.")
                 .build();

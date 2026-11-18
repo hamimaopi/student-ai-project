@@ -1,6 +1,7 @@
 import React from 'react';
 import { SessionData, StudentState, DebriefData, SessionParticipant } from '../types';
 import { formatDuration, formatMessageTime } from '../utils/formatters';
+import { getStudentAvatarUrl } from '../utils/avatarUtils';
 import styles from './DebriefModal.module.css';
 
 interface Props {
@@ -124,11 +125,11 @@ export const DebriefModal: React.FC<Props> = ({ session, onClose, onRestart }) =
               >
                 <div className={styles.studentHeader}>
                   <img
-                    src={p.avatarUrl}
+                    src={getStudentAvatarUrl(p.studentName, p.avatarUrl)}
                     alt={p.studentName}
                     className={styles.studentAvatar}
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/images/avatar_sue.png';
+                      (e.target as HTMLImageElement).src = getStudentAvatarUrl(p.studentName);
                     }}
                   />
                   <div className={styles.studentMeta}>
