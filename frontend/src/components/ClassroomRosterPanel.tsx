@@ -1,5 +1,6 @@
 import React from 'react';
 import { SessionParticipant, StudentState } from '../types';
+import { getStudentAvatarUrl } from '../utils/avatarUtils';
 import styles from './ClassroomRosterPanel.module.css';
 
 interface Props {
@@ -91,13 +92,16 @@ export const ClassroomRosterPanel: React.FC<Props> = ({
               <div className={styles.cardHeaderRow}>
                 <div className={styles.avatarWrapper}>
                   <img
-                    src={p.avatarUrl || '/images/avatar_sue.png'}
+                    src={getStudentAvatarUrl(p.studentName, p.avatarUrl)}
                     alt={p.studentName}
                     className={`${styles.avatar} ${
                       isThisStudentThinking
                         ? `animate-thinking-glow ${styles.avatarThinking}`
                         : ''
                     }`}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = getStudentAvatarUrl(p.studentName);
+                    }}
                   />
                   {isThisStudentThinking && (
                     <span className={styles.thinkingBadge}>THINKING</span>

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SessionParticipant, StudentState } from '../types';
+import { getStudentAvatarUrl } from '../utils/avatarUtils';
 import styles from './ChatInput.module.css';
 
 interface Props {
@@ -175,9 +176,12 @@ export const ChatInput: React.FC<Props> = ({
                 title={`Target ${p.studentName} directly`}
               >
                 <img
-                  src={p.avatarUrl || '/images/avatar_sue.png'}
+                  src={getStudentAvatarUrl(p.studentName, p.avatarUrl)}
                   alt={p.studentName}
                   className={styles.callOnChipAvatar}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = getStudentAvatarUrl(p.studentName);
+                  }}
                 />
                 <span>{p.studentName}</span>
               </button>

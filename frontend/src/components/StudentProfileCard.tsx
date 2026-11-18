@@ -1,5 +1,6 @@
 import React from 'react';
 import { SessionParticipant, StudentState } from '../types';
+import { getStudentAvatarUrl } from '../utils/avatarUtils';
 import styles from './StudentProfileCard.module.css';
 
 interface Props {
@@ -53,9 +54,12 @@ export const StudentProfileCard: React.FC<Props> = ({ participant, isThinking })
         {/* Avatar with dynamic glow */}
         <div className={styles.avatarWrapper}>
           <img
-            src={participant.avatarUrl || '/images/avatar_sue.png'}
+            src={getStudentAvatarUrl(participant.studentName, participant.avatarUrl)}
             alt={participant.studentName}
             className={`${styles.avatar} ${isThinking ? `animate-thinking-glow ${styles.avatarThinking}` : ''}`}
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = getStudentAvatarUrl(participant.studentName);
+            }}
           />
           {isThinking && (
             <span className={styles.thinkingBadge}>

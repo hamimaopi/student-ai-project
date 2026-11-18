@@ -149,4 +149,59 @@ class PromptBuilderTest {
         String historyNull = promptBuilder.buildConversationHistory(null, "Sue");
         assertEquals("No prior messages. This is the start of the discussion.", historyNull);
     }
+
+    @Test
+    @DisplayName("System prompt includes conversational rules for greetings and unrelated questions")
+    void testPromptContainsConversationalRules() {
+        String prompt = promptBuilder.buildSystemPrompt(
+                student,
+                scenario,
+                mentalModel,
+                StudentState.CONFIDENTLY_WRONG,
+                0,
+                null
+        );
+
+        assertTrue(prompt.contains("GREETINGS & CASUAL TALK"));
+        assertTrue(prompt.contains("Do NOT force the conversation into the science lesson unless asked."));
+        assertTrue(prompt.contains("UNRELATED QUESTIONS"));
+        assertTrue(prompt.contains("MIXED QUESTIONS"));
+        assertTrue(prompt.contains("PEER INDEPENDENCE"));
+        assertTrue(prompt.contains("=== YOUR BELIEFS & MISCONCEPTION (WHEN DISCUSSING THE SCIENCE LESSON) ==="));
+        assertTrue(prompt.contains("=== YOUR ACADEMIC MENTAL STATE: [CONFIDENTLY_WRONG] (WHEN DISCUSSING THE LESSON) ==="));
+    }
+
+    @Test
+    @DisplayName("Multi-student prompt includes classmate personalities and peer focus when referenced")
+    void testPromptMultiStudentPeerFocus() {
+        Student marcus = Student.builder()
+                .id(UUID.randomUUID())
+                .name("Marcus")
+                .gradeLevel("8th grade")
+                .personality("Energetic and enthusiastic")
+                .build();
+
+        var participantSue = com.studentai.project.session.SessionParticipant.builder()
+                .student(student)
+                .build();
+        var participantMarcus = com.studentai.project.session.SessionParticipant.builder()
+                .student(marcus)
+                .build();
+
+        String prompt = promptBuilder.buildSystemPrompt(
+                student,
+                scenario,
+                mentalModel,
+                StudentState.CONFIDENTLY_WRONG,
+                0,
+                null,
+                List.of(participantSue, participantMarcus),
+                "Marcus"
+        );
+
+        assertTrue(prompt.contains("Your classmates sitting next to you are:"));
+        assertTrue(prompt.contains("Marcus: Energetic and enthusiastic"));
+        assertTrue(prompt.contains("=== PEER DISCUSSION FOCUS ==="));
+        assertTrue(prompt.contains("The teacher specifically asked you about what Marcus said."));
+    }
 }

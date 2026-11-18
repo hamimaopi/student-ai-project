@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ClassroomDetail, TeacherBadge } from '../types';
 import { TeacherBadgeSelector } from '../components/TeacherBadgeSelector';
+import { getStudentAvatarUrl } from '../utils/avatarUtils';
 import styles from './TeacherSetupView.module.css';
 
 interface Props {
@@ -175,9 +176,12 @@ export const TeacherSetupView: React.FC<Props> = ({
                           classroom.students.map((st) => (
                             <div key={st.id} className={styles.studentCard}>
                               <img
-                                src={st.avatarUrl || '/images/avatar_sue.png'}
+                                src={getStudentAvatarUrl(st.name, st.avatarUrl)}
                                 alt={st.name}
                                 className={styles.studentAvatar}
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = getStudentAvatarUrl(st.name);
+                                }}
                               />
                               <div>
                                 <div className={styles.studentNameRow}>
@@ -197,9 +201,12 @@ export const TeacherSetupView: React.FC<Props> = ({
                         ) : (
                           <div className={styles.studentCard}>
                             <img
-                              src={student?.avatarUrl || '/images/avatar_sue.png'}
+                              src={getStudentAvatarUrl(student?.name, student?.avatarUrl)}
                               alt={student?.name || 'Sue'}
                               className={styles.studentAvatar}
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = getStudentAvatarUrl(student?.name);
+                              }}
                             />
                             <div>
                               <div className={styles.studentNameRow}>

@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { ChatMessage, TeacherBadge } from '../types';
 import { ThinkingIndicator } from './ThinkingIndicator';
 import { formatMessageTime, formatDuration } from '../utils/formatters';
+import { getStudentAvatarUrl } from '../utils/avatarUtils';
 import styles from './ChatMessages.module.css';
 
 interface Props {
@@ -96,9 +97,12 @@ export const ChatMessages: React.FC<Props> = ({
               </div>
             ) : (
               <img
-                src={msg.avatarUrl || studentAvatarUrl}
+                src={getStudentAvatarUrl(msg.senderName, msg.avatarUrl || studentAvatarUrl)}
                 alt={msg.senderName}
                 className={styles.studentAvatar}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = getStudentAvatarUrl(msg.senderName);
+                }}
               />
             )}
 
@@ -146,7 +150,7 @@ export const ChatMessages: React.FC<Props> = ({
       {isThinking && (
         <ThinkingIndicator
           studentName={thinkingStudentName || studentName}
-          avatarUrl={thinkingAvatarUrl || studentAvatarUrl}
+          avatarUrl={thinkingAvatarUrl ? getStudentAvatarUrl(thinkingStudentName || studentName, thinkingAvatarUrl) : undefined}
         />
       )}
 

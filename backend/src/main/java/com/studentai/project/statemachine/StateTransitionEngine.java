@@ -21,6 +21,14 @@ public class StateTransitionEngine {
             TransitionRecommendation recommendation,
             int turnsInState
     ) {
+        if (strategy == TeacherStrategy.OFF_TOPIC) {
+            return TransitionResult.builder()
+                    .nextState(currentState)
+                    .stateChanged(false)
+                    .reason("Off-topic conversation; student mental model state unchanged.")
+                    .build();
+        }
+
         if (currentState == StudentState.UNDERSTANDING) {
             return TransitionResult.builder()
                     .nextState(StudentState.UNDERSTANDING)

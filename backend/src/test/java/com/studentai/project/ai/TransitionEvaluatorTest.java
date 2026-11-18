@@ -107,4 +107,77 @@ class TransitionEvaluatorTest {
         assertEquals(TeacherStrategy.TELLING, resultStatement.getStrategy());
         assertEquals(TransitionRecommendation.STAY, resultStatement.getRecommendation());
     }
+
+    @Test
+    @DisplayName("Fallback classifies greetings as OFF_TOPIC with STAY recommendation")
+    void testFallbackGreetings() {
+        TeacherMoveEvaluation hiGuys = evaluator.fallbackEvaluation("Hi guys");
+        assertEquals(TeacherStrategy.OFF_TOPIC, hiGuys.getStrategy());
+        assertFalse(hiGuys.isAddressesMisconception());
+        assertEquals(TransitionRecommendation.STAY, hiGuys.getRecommendation());
+
+        TeacherMoveEvaluation goodMorning = evaluator.fallbackEvaluation("Good morning everyone!");
+        assertEquals(TeacherStrategy.OFF_TOPIC, goodMorning.getStrategy());
+        assertFalse(goodMorning.isAddressesMisconception());
+    }
+
+    @Test
+    @DisplayName("Fallback classifies casual questions as OFF_TOPIC")
+    void testFallbackCasualQuestions() {
+        TeacherMoveEvaluation howAreYou = evaluator.fallbackEvaluation("How are you all?");
+        assertEquals(TeacherStrategy.OFF_TOPIC, howAreYou.getStrategy());
+        assertFalse(howAreYou.isAddressesMisconception());
+        assertEquals(TransitionRecommendation.STAY, howAreYou.getRecommendation());
+
+        TeacherMoveEvaluation weekend = evaluator.fallbackEvaluation("What did you do over the weekend?");
+        assertEquals(TeacherStrategy.OFF_TOPIC, weekend.getStrategy());
+        assertFalse(weekend.isAddressesMisconception());
+    }
+
+    @Test
+    @DisplayName("Fallback classifies personal questions as OFF_TOPIC")
+    void testFallbackPersonalQuestions() {
+        TeacherMoveEvaluation funFact = evaluator.fallbackEvaluation("Can you guys tell me a fun fact about yourselves?");
+        assertEquals(TeacherStrategy.OFF_TOPIC, funFact.getStrategy());
+        assertFalse(funFact.isAddressesMisconception());
+        assertEquals(TransitionRecommendation.STAY, funFact.getRecommendation());
+    }
+
+    @Test
+    @DisplayName("Fallback classifies mixed greeting and academic questions as PROBING")
+    void testFallbackMixedQuestions() {
+        TeacherMoveEvaluation mixed = evaluator.fallbackEvaluation("Hi Sue, what do you think made Anthony sick?");
+        assertEquals(TeacherStrategy.PROBING, mixed.getStrategy());
+        assertTrue(mixed.isAddressesMisconception());
+        assertEquals(TransitionRecommendation.ADVANCE, mixed.getRecommendation());
+    }
+
+    @Test
+    @DisplayName("Fallback classifies academic questions as PROBING")
+    void testFallbackAcademicQuestions() {
+        TeacherMoveEvaluation academic = evaluator.fallbackEvaluation("Where do cold viruses actually originate from?");
+        assertEquals(TeacherStrategy.PROBING, academic.getStrategy());
+        assertTrue(academic.isAddressesMisconception());
+        assertEquals(TransitionRecommendation.ADVANCE, academic.getRecommendation());
+    }
+
+    @Test
+    @DisplayName("Parse JSON with OFF_TOPIC sets addressesMisconception false and summary appropriately")
+    void testParseOffTopicJson() {
+        String json = """
+            {
+              "strategy": "OFF_TOPIC",
+              "addressesMisconception": false,
+              "clarity": "CLEAR_WITH_REASONING",
+              "recommendation": "STAY",
+              "turnSummary": "Teacher said hello."
+            }
+            """;
+
+        TeacherMoveEvaluation result = evaluator.parseEvaluation(json, "Hello everyone!");
+        assertNotNull(result);
+        assertEquals(TeacherStrategy.OFF_TOPIC, result.getStrategy());
+        assertFalse(result.isAddressesMisconception());
+        assertEquals(TransitionRecommendation.STAY, result.getRecommendation());
+    }
 }

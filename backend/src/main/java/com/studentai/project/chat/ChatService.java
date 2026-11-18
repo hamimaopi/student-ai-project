@@ -20,6 +20,7 @@ import com.studentai.project.session.SessionParticipantRepository;
 import com.studentai.project.session.SessionRepository;
 import com.studentai.project.session.dto.SessionParticipantResponse;
 import com.studentai.project.statemachine.StateTransitionEngine;
+import com.studentai.project.statemachine.TeacherStrategy;
 import com.studentai.project.student.Student;
 import com.studentai.project.student.StudentMentalModel;
 import lombok.RequiredArgsConstructor;
@@ -122,16 +123,20 @@ public class ChatService {
 
         // 7. Update Target Participant State & Spoken Metrics
         int studentTurnNumber = teacherTurnNumber + 1;
+        boolean isOffTopic = evaluation.getStrategy() == TeacherStrategy.OFF_TOPIC;
+
         if (transition.isStateChanged()) {
             targetParticipant.setCurrentState(transition.getNextState());
             targetParticipant.resetTurnsInState();
-        } else {
+        } else if (!isOffTopic) {
             targetParticipant.incrementTurnsInState();
         }
 
-        String updatedSummary = (targetParticipant.getStateSummary() != null ? targetParticipant.getStateSummary() + " " : "")
-                + evaluation.getTurnSummary();
-        targetParticipant.setStateSummary(updatedSummary.trim());
+        if (!isOffTopic && evaluation.getTurnSummary() != null && !evaluation.getTurnSummary().isBlank()) {
+            String updatedSummary = (targetParticipant.getStateSummary() != null ? targetParticipant.getStateSummary() + " " : "")
+                    + evaluation.getTurnSummary();
+            targetParticipant.setStateSummary(updatedSummary.trim());
+        }
         targetParticipant.recordTurnSpoken(studentTurnNumber);
         SessionParticipant savedParticipant = participantRepository.save(targetParticipant);
 

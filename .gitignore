@@ -7,3 +7,4 @@ backend/target/
 *.log
 *.tsbuildinfo
 .dev-run/
+backup_student_ai_pre_recovery.sql
